@@ -26,15 +26,10 @@ export default function OnboardingChat() {
     const [isScanning, setIsScanning] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
-
     useEffect(() => {
-        scrollToBottom()
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [messages])
 
-    // Voice Greeting
     useEffect(() => {
         const greet = () => {
             if ('speechSynthesis' in globalThis) {
@@ -43,64 +38,69 @@ export default function OnboardingChat() {
                 globalThis.speechSynthesis.speak(utterance);
             }
         }
-        setTimeout(greet, 1000);
+        const timer = setTimeout(greet, 1000);
+        return () => clearTimeout(timer);
     }, [])
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const processOCR = async (base64: string) => {
+        try {
+            const res = await fetch('/api/ocr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageBase64: base64 })
+            });
+            const data = await res.json();
+
+            if (!data.name) {
+                toast.error("Format unrecognized. Try a clearer image.");
+                return;
+            }
+
+            setMessages(prev => [...prev, {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: `Analysis Complete. Identity: ${data.name}. Detected Conditions: ${Object.entries(data.conditions || {}).filter(([_, v]) => v).map(([k]) => k).join(', ') || 'None'}. Profile synchronized.`
+            }]);
+
+            setUser({
+                ...user,
+                name: data.name,
+                age: data.age,
+                medicalConditions: { ...data.conditions, specificConditions: data.specific || [] }
+            } as any);
+
+            setTimeout(() => router.push('/dashboard'), 3000);
+        } catch (apiErr) {
+            console.error("OCR API failed", apiErr);
+            toast.error("Network error during scan.");
+        } finally {
+            setIsScanning(false);
+        }
+    }
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         setIsScanning(true);
         setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: "Scanning medical document... Neural analysis in progress." }]);
 
-        try {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const base64 = (reader.result as string).split(',')[1];
-                try {
-                    const res = await fetch('/api/ocr', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ imageBase64: base64 })
-                    });
-                    const data = await res.json();
-
-                    if (data.name) {
-                        setMessages(prev => [...prev, {
-                            id: (Date.now() + 1).toString(),
-                            role: 'assistant',
-                            content: `Analysis Complete. Identity: ${data.name}. Detected Conditions: ${Object.entries(data.conditions || {}).filter(([_, v]) => v).map(([k]) => k).join(', ') || 'None'}. Profile synchronized.`
-                        }]);
-                        setUser({
-                            ...user,
-                            name: data.name,
-                            age: data.age,
-                            medicalConditions: { ...data.conditions, specificConditions: data.specific || [] }
-                        } as any);
-                        setTimeout(() => router.push('/dashboard'), 3000);
-                    } else {
-                        toast.error("Format unrecognized. Try a clearer image.");
-                    }
-                } catch (apiErr) {
-                    console.error("OCR API failed", apiErr);
-                    toast.error("Network error during scan.");
-                } finally {
-                    setIsScanning(false);
-                }
-            };
-        } catch (err) {
-            console.error("File reading failed", err);
-            toast.error("OCR Failed. Please enter manually.");
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            processOCR(base64);
+        };
+        reader.onerror = () => {
+            toast.error("File reading failed");
             setIsScanning(false);
-        }
+        };
+        reader.readAsDataURL(file);
     }
 
     const handleSend = async () => {
         if (!input.trim()) return
 
-        const userMsg: Message = { id: Date.now().toString(), role: 'user', content: input }
-        setMessages(prev => [...prev, userMsg])
+        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: input }])
         setInput('')
         setIsTyping(true)
 
@@ -111,12 +111,12 @@ export default function OnboardingChat() {
                 setStep(1)
             } else if (step === 1) {
                 responseText = "Profile optimized. Redirecting to Dashboard..."
-                setTimeout(() => router.push('/dashboard'), 2000);
+                setTimeout(() => router.push('/dashboard'), 1500);
                 setStep(2)
             }
             setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: responseText }])
             setIsTyping(false)
-        }, 1500)
+        }, 1200)
     }
 
     return (
@@ -140,7 +140,7 @@ export default function OnboardingChat() {
             <GlassCard className="flex-1 flex flex-col relative z-10 border-blue-500/20 bg-black/40 backdrop-blur-xl mb-4 overflow-hidden">
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                     {messages.map((msg) => (
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[85%] rounded-2xl p-4 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white/5 text-blue-100 border border-white/10 rounded-bl-none'}`}>
                                 <div className="flex items-center gap-2 mb-1 opacity-50 text-[10px] uppercase font-mono">
                                     {msg.role === 'user' ? <User size={10} /> : <Bot size={10} />}
@@ -148,7 +148,7 @@ export default function OnboardingChat() {
                                 </div>
                                 {msg.content}
                             </div>
-                        </motion.div>
+                        </div>
                     ))}
                     {isTyping && <div className="text-blue-500 text-xs animate-pulse font-mono ml-4">AI THINKING...</div>}
                     <div ref={messagesEndRef} />
@@ -173,12 +173,12 @@ export default function OnboardingChat() {
                             <Send size={20} />
                         </button>
                     </div>
-                    <div className="mt-4 flex justify-center gap-6 text-[10px] text-white/30 font-mono">
-                        <span className="flex items-center gap-1"><ShieldCheck size={10} /> HIPAA Compliant</span>
-                        <span className="flex items-center gap-1"><CheckCircle size={10} /> AES-256 Encryption</span>
-                    </div>
                 </div>
             </GlassCard>
+            <div className="mt-2 flex justify-center gap-6 text-[10px] text-white/30 font-mono">
+                <span className="flex items-center gap-1"><ShieldCheck size={10} /> HIPAA Compliant</span>
+                <span className="flex items-center gap-1"><CheckCircle size={10} /> AES-256 Encryption</span>
+            </div>
         </div>
     )
 }

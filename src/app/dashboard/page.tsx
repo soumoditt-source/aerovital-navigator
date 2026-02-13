@@ -16,6 +16,7 @@ const SpikeAlert = dynamic(() => import('@/components/dashboard/SpikeAlert'), { 
 const InteractiveMap = dynamic(() => import('@/components/map/InteractiveMap'), { ssr: false })
 const VoiceAgent = dynamic(() => import('@/components/voice/VoiceAgent'), { ssr: false })
 import ChatAssistant from '@/components/chat/ChatAssistant'
+import PathwayDeepBrain from '@/components/intelligence/PathwayDeepBrain'
 
 export default function Dashboard() {
   const user = useUserStore(state => state.user)
@@ -137,13 +138,16 @@ export default function Dashboard() {
 
         {/* SECTION 1: VITALS & METRICS */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-12">
+          <div className="lg:col-span-8">
             <MetricsPanel
               aqi={readings?.aqi || 0}
               pm25={readings?.pm25 || 0}
               temperature={readings?.temperature || 0}
               humidity={readings?.humidity || 0}
             />
+          </div>
+          <div className="lg:col-span-4">
+            <PathwayDeepBrain />
           </div>
         </section>
 

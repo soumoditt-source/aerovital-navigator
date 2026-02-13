@@ -278,6 +278,14 @@ export default function ChatAssistant() {
 // AI API Functions
 async function callPathwayAPI(context: any): Promise<string> {
     try {
+        const { queryPathwayIntel } = await import('@/lib/api/pathwayClient');
+        const res = await queryPathwayIntel(context.query, context);
+
+        if (res.success && (res.response || res.message)) {
+            return res.response || res.message;
+        }
+
+        // Fallback to simpler broadcast if RAG fails
         const response = await fetch(process.env.NEXT_PUBLIC_PATHWAY_API_URL || 'http://localhost:8001', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -293,7 +301,7 @@ async function callPathwayAPI(context: any): Promise<string> {
         return data.response || data.message || getLocalResponse(context);
     } catch (error) {
         console.error('Pathway API failed:', error);
-        throw error;
+        return getLocalResponse(context);
     }
 }
 

@@ -56,3 +56,18 @@ export async function getCurrentReadings(lat: number, lon: number) {
         return { success: false, error }
     }
 }
+
+export async function queryPathwayIntel(query: string, context: any) {
+    if (!API_URL) return { success: false, message: 'API URL not configured' }
+    try {
+        const response = await fetch(`${API_URL}/api/intelligence/query`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, context })
+        })
+        return await response.json()
+    } catch (error) {
+        console.error('Error querying Pathway Intel:', error)
+        return { success: false, error }
+    }
+}

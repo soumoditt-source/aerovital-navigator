@@ -8,351 +8,67 @@
 
 ---
 
-## 🚀 v3.0 ULTIMATE Features
+## 🚀 v3.0 ULTIMATE Updates
 
-### **🎯 Core Features**
-*   **Real-Time Dashboard**: Live monitoring of AQI, PM2.5, Temperature, and Humidity with auto-refresh
-*   **Interactive Mapping**: Leaflet-based maps with heatmap overlays and location tracking
-*   **Personalized Risk Assessment**: Health risk calculations based on user profiles (cardiovascular, respiratory, metabolic)
-*   **Intelligent Routing**: Find the **Safest**, **Fastest**, or **Greenest** path with pollution exposure metrics
+### **🧠 Pathway Post-Transformer Intelligence (NEW)**
+*   **Pathway Deep Brain**: A real-time neural intelligence panel that processes atmospheric toxicity against your medical history for 1-sentence actionable reasoning.
+*   **Advanced RAG**: Leveraging Pathway's streaming engine for deep-context health queries.
+*   **Emergency Triage**: Pathway integration in SOS alerts for immediate medical advice based on current air quality.
 
-### **🤖 Multi-Model AI Assistant (NEW)**
-*   **Pathway RAG**: Real-time streaming AI with context-aware responses
-*   **Google Gemini Pro**: Free, powerful AI for health analysis (API key optional)
-*   **Groq LLaMA**: Ultra-fast inference for instant responses
-*   **Local AI**: 100% offline mode with intelligent fallback
-*   **Model Switching**: Seamlessly switch between AI models in-app
-*   **Context-Aware**: Automatically includes current AQI, user health data, and location
+### **👁️ Gemini 1.5 Flash OCR (NEW)**
+*   **Medical Document Scanning**: Upload health reports (Images/PDFs) during onboarding for instant AI-driven profile sync.
+*   **Identity & Condition Detection**: Automatically detects cardiovascular, respiratory, and metabolic conditions to calibrate your "Respiratory Shield".
 
-### **📱 Progressive Web App (NEW)**
-*   **Installable**: Add to home screen on mobile/desktop
-*   **Offline Support**: Full functionality without internet connection
-*   **Push Notifications**: Real-time pollution spike alerts
-*   **Background Sync**: Automatic data synchronization
-*   **App-Like Experience**: Native app feel with smooth transitions
+### **🗺️ Advanced Interactive Mapping (UPGRADED)**
+*   **Multi-Layer Views**: Toggle between Dark Dashboard, Real Satellite, and Streets for tactical navigation.
+*   **Live Heatmaps**: Dynamic pollution visualization on-the-fly.
+*   **Anti-Blank Guard**: Robust initialization logic ensuring map visibility on all devices.
 
-### **🚨 Emergency Features (NEW)**
-*   **SOS Button**: One-tap emergency alert with GPS location
-*   **Health Status Sharing**: Automatically shares current AQI and health metrics
-*   **Emergency Contacts**: Quick access to emergency services (112)
-*   **Location Sharing**: Real-time GPS coordinates via Google Maps link
+### **🎙️ Voice & AI Agent (UPGRADED)**
+*   **Neural Greeting**: AI voice greeting upon system startup.
+*   **Voice Commands**: Hands-free operation for safety while traveling.
 
-### **📊 Health Data Management (NEW)**
-*   **PDF Reports**: Professional medical-grade health reports
-*   **CSV Export**: Download exposure history for analysis
-*   **Social Sharing**: Share health status with doctors/family
-*   **Historical Tracking**: Monitor long-term pollution exposure
-
-### **🗺️ Advanced Route Planning (NEW)**
-*   **Custom Route Drawing**: Draw your exact commute path on the map
-*   **Exposure Calculator**: Real-time pollution exposure calculation (AQI·minutes)
-*   **Risk Assessment**: Visual indicators for high-risk routes
-*   **Distance & Time**: Automatic calculation of route metrics
-*   **Alternative Suggestions**: Recommends safer routes when exposure is high
-
-### **🏋️ Existing Features**
-*   **Armor Core Fitness**: 30-day adaptive fitness program based on air quality
-*   **Global Intel Feed**: Live news and environmental alerts
-*   **Neural Orientation**: Interactive tutorial system for new users
-*   **Voice Commands**: Hands-free operation with Web Speech API
+### **🛡️ 100% Online Data Integrity**
+*   **Multi-API Fallback**: Prioritizes Pathway Satellite Stream but automatically falls back to Open-Meteo if your backend is offline. **Zero-data gaps.**
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ Tech Stack
 
 ### **Frontend**
 *   Next.js 14 (App Router)
-*   React 18
-*   TypeScript
-*   Tailwind CSS
-*   Framer Motion (animations)
-*   Leaflet + React-Leaflet (maps)
-*   Leaflet Draw (route drawing)
+*   Tailwind CSS (Vanilla Flexibility)
+*   Framer Motion (Premium Animations)
+*   Leaflet & React-Leaflet (Maps)
 
-### **State Management**
-*   Zustand (global state)
-*   SWR (data fetching)
-
-### **AI & Backend**
-*   **Pathway** (Python) - Real-time streaming AI
-*   **Google Gemini Pro** - Free AI API
-*   **Groq** - Ultra-fast LLM inference
-*   Local AI fallback
-
-### **PWA & Offline**
-*   Service Workers
-*   Cache API
-*   Web Push API
-*   IndexedDB (future)
-
-### **Data Sources**
-*   WAQI (World Air Quality Index)
-*   Open-Meteo API
-*   OpenWeather API
-*   Google Gemini AI
-
-### **Export & Reporting**
-*   jsPDF (PDF generation)
-*   jsPDF-AutoTable (tables)
-*   Chart.js (visualizations)
+### **Intelligence & Backend**
+*   **Pathway** - Streaming RAG & Post-Transformer Engine
+*   **Google Gemini 1.5 Flash** - Document OCR & Health Analysis
+*   **Groq LLaMA 3** - Ultra-fast inference fallback
+*   **Open-Meteo** - Robust atmospheric data fallback
 
 ---
 
 ## 🏗️ Getting Started
 
-### Prerequisites
-
-*   Node.js 18+
-*   Google Colab (for Pathway backend) OR API keys for Gemini/Groq
-
-### Installation
-
-1.  **Clone the repository**:
+1.  **Clone & Install**:
     ```bash
     git clone https://github.com/YOUR_USERNAME/aerovital-navigator.git
-    cd aerovital-navigator
-    ```
-
-2.  **Install dependencies**:
-    ```bash
     npm install
     ```
 
-3.  **Configure Environment** (Optional):
-    Create `.env.local` in the root directory:
+2.  **Environment Variables**:
+    Create a `.env.local`:
     ```env
-    # Pathway Backend (if running locally)
-    NEXT_PUBLIC_PATHWAY_API_URL=http://localhost:8001
-
-    # AI API Keys (Optional - app works without these)
-    NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
-    NEXT_PUBLIC_GROQ_API_KEY=your_groq_api_key_here
-
-    # Push Notifications (Optional)
-    NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key_here
+    NEXT_PUBLIC_PATHWAY_API_URL=your_pathway_endpoint
+    NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_key
+    NEXT_PUBLIC_GROQ_API_KEY=your_groq_key
     ```
 
-    **Note**: The app works perfectly without any API keys! It will use:
-    - Local AI mode for chat (no API needed)
-    - WAQI demo API for air quality data
-    - All features remain functional
-
-4.  **Run Development Server**:
+3.  **Launch**:
     ```bash
     npm run dev
     ```
-    Open [http://localhost:3000](http://localhost:3000)
-
-5.  **Build for Production**:
-    ```bash
-    npm run build
-    npm start
-    ```
-
----
-
-## 🚀 Deployment
-
-### **Vercel (Recommended - 100% Free)**
-
-1.  Push code to GitHub
-2.  Import project in [Vercel](https://vercel.com)
-3.  Add environment variables (optional)
-4.  Deploy!
-
-**Vercel automatically handles**:
-- PWA manifest serving
-- Service worker caching
-- Edge functions
-- Automatic HTTPS
-- Global CDN
-
-### **Other Platforms**
-
-Works on any Node.js hosting:
-- Netlify
-- Railway
-- Render
-- AWS Amplify
-- Google Cloud Run
-
----
-
-## 📱 PWA Installation
-
-### **Mobile (Android/iOS)**
-
-1.  Open the app in Chrome/Safari
-2.  Tap the "Install App" prompt
-3.  Or use browser menu → "Add to Home Screen"
-4.  Launch from home screen like a native app!
-
-### **Desktop (Chrome/Edge)**
-
-1.  Click the install icon in the address bar
-2.  Or use the in-app "Install" button
-3.  App appears in your applications folder
-
----
-
-## 🔔 Push Notifications Setup
-
-1.  **Enable in-app**: Click the notification bell icon
-2.  **Grant permission**: Allow notifications when prompted
-3.  **Automatic alerts**: Receive pollution spike warnings even when app is closed
-
-**No backend required!** Notifications work client-side using Service Workers.
-
----
-
-## 🤖 AI Models Guide
-
-### **Pathway RAG** (Default)
-- **Best for**: Real-time streaming responses
-- **Requires**: Pathway backend running (Google Colab or local)
-- **Fallback**: Automatically switches to Gemini if unavailable
-
-### **Gemini Pro** (Recommended)
-- **Best for**: Comprehensive health analysis
-- **Requires**: Free Google AI Studio API key
-- **Get key**: [https://makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
-
-### **Groq LLaMA**
-- **Best for**: Ultra-fast responses (< 1 second)
-- **Requires**: Free Groq API key
-- **Get key**: [https://console.groq.com](https://console.groq.com)
-
-### **Local AI** (Always Available)
-- **Best for**: 100% offline operation
-- **Requires**: Nothing!
-- **Features**: Rule-based intelligent responses using current AQI data
-
----
-
-## 📊 Feature Comparison
-
-| Feature | v2.0 | v3.0 ULTIMATE |
-|---------|------|---------------|
-| PWA Support | ❌ | ✅ |
-| Offline Mode | ❌ | ✅ |
-| Push Notifications | ❌ | ✅ |
-| Multi-Model AI | ❌ | ✅ (4 models) |
-| Emergency SOS | ❌ | ✅ |
-| Health PDF Export | ❌ | ✅ |
-| Route Drawing | ❌ | ✅ |
-| Exposure Calculator | ❌ | ✅ |
-| Install to Home Screen | ❌ | ✅ |
-| Background Sync | ❌ | ✅ |
-
----
-
-## 🎯 Usage Examples
-
-### **1. Check Air Quality**
-```
-Open app → Dashboard → View live AQI, PM2.5, Temperature
-```
-
-### **2. Plan Safe Route**
-```
-Dashboard → Click "Draw Route" → Draw path on map → See exposure calculation
-```
-
-### **3. Export Health Report**
-```
-Dashboard → "Export Health Data" → Click "PDF Report" → Share with doctor
-```
-
-### **4. Emergency Alert**
-```
-Click red SOS button → Confirm → Shares location + health status
-```
-
-### **5. Switch AI Model**
-```
-Open Chat → Click model dropdown → Select Gemini/Groq/Local
-```
-
----
-
-## 🧪 Testing
-
-```bash
-# Run linter
-npm run lint
-
-# Build test
-npm run build
-
-# Type check
-npx tsc --noEmit
-```
-
----
-
-## 📄 License
-
-MIT License - feel free to use for personal or commercial projects!
-
----
-
-## 🙏 Acknowledgments
-
-*   **Pathway** - Real-time streaming AI framework
-*   **Google Gemini** - Free, powerful AI API
-*   **Groq** - Ultra-fast LLM inference
-*   **WAQI** - Global air quality data
-*   **Leaflet** - Open-source mapping
-*   **Next.js** - React framework
-*   **Vercel** - Free hosting
-
----
-
-## 📞 Contact & Support
-
-**Developer**: Soumoditya Das  
-**Email**: soumoditt@gmail.com  
-**GitHub**: [Your GitHub Profile]
-
-For bugs or feature requests, please open an issue on GitHub.
-
----
-
-## 🔮 Roadmap
-
-- [ ] Wearable device integration (Fitbit, Apple Watch)
-- [ ] Social features (share routes, community reports)
-- [ ] 3D pollution visualization
-- [ ] Multi-language support (Hindi, Bengali, Tamil)
-- [ ] Predictive AI (forecast pollution 6 hours ahead)
-- [ ] Gamification (points, badges, leaderboards)
-
----
-
-**Made with ❤️ for a healthier planet**
-
-    Create a `.env.local` file in the root directory:
-    ```env
-    NEXT_PUBLIC_PATHWAY_API_URL=https://your-ngrok-url.ngrok-free.app
-    ```
-    *(See `COLAB_SETUP.md` for details on how to get your Pathway URL)*
-
-4.  **Run Development Server**:
-    ```bash
-    npm run dev
-    ```
-    Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 🚢 Deployment
-
-This project is optimized for deployment on **Vercel**.
-
-1.  Push your code to GitHub.
-2.  Import the project into Vercel.
-3.  Add the `NEXT_PUBLIC_PATHWAY_API_URL` environment variable in Vercel settings.
-4.  Click **Deploy**.
 
 ---
 
@@ -368,5 +84,4 @@ This project is optimized for deployment on **Vercel**.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-Copyright © 2026 Soumoditya Das.
+MIT License - Copyright © 2026 Soumoditya Das.

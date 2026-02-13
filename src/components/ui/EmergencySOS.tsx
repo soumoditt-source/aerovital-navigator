@@ -34,6 +34,14 @@ export default function EmergencySOS() {
             const { latitude, longitude } = position.coords;
             const locationUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
+            // NEW: Get Pathway Emergency Intelligence
+            let pathwayIntel = "";
+            try {
+                const { queryPathwayIntel } = await import('@/lib/api/pathwayClient');
+                const intel = await queryPathwayIntel("EMERGENCY TRIGGERED. Provide a 1-sentence medical triage advice for this location and AQI level.", { latitude, longitude, aqi, pm25 });
+                if (intel.success) pathwayIntel = `\n\n🧠 PATHWAY INTEL: ${intel.response || intel.message}`;
+            } catch (e) { console.error("Pathway SOS intel failed", e); }
+
             // Prepare emergency message
             const message = `🚨 AEROVITAL EMERGENCY ALERT 🚨
 
@@ -42,7 +50,7 @@ Medical Emergency Detected!
 📍 Location: ${locationUrl}
 🌬️ Current AQI: ${aqi}
 💨 PM2.5: ${pm25} µg/m³
-🌡️ Temperature: ${temperature}°C
+🌡️ Temperature: ${temperature}°C${pathwayIntel}
 
 ⚠️ This person may be experiencing respiratory distress or cardiac symptoms due to severe air pollution.
 
