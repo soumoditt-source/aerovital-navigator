@@ -134,3 +134,21 @@
 .animate-pulse-glow {
   animation: pulse-glow 2s infinite;
 }
+
+/* Leaflet Fixes */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  background: #0b0f1a !important;
+  z-index: 1 !important;
+}
+
+.leaflet-tile-pane {
+  filter: brightness(0.6) contrast(1.2) saturate(0.5);
+  /* Dark cinematic theme for the map */
+}
+
+/* Marker customization */
+.custom-marker {
+  filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5));
+}

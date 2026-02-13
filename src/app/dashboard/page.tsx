@@ -152,41 +152,41 @@ export default function Dashboard() {
         </section>
 
         {/* SECTION 2: MAP & NAVIGATION */}
-        <section id="live-map" className="h-[500px] lg:h-[600px] w-full relative group rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-          <GlassCard className="h-full w-full p-0 relative z-0">
-            {/* Map Controls */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] flex gap-2 p-1 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 shadow-xl">
-              <button
-                onClick={() => setActiveSelection('start')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeSelection === 'start' ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'hover:bg-white/10 text-white/70'}`}
-              >
-                Set Start
-              </button>
-              <div className="w-px bg-white/10 mx-1" />
-              <button
-                onClick={() => setActiveSelection('end')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeSelection === 'end' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'hover:bg-white/10 text-white/70'}`}
-              >
-                Set Dest
-              </button>
+        <section id="live-map" className="h-[500px] lg:h-[600px] w-full relative group rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900">
+          {/* Map Controls */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1001] flex gap-2 p-1 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 shadow-xl">
+            <button
+              onClick={() => setActiveSelection('start')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeSelection === 'start' ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'hover:bg-white/10 text-white/70'}`}
+            >
+              Set Start
+            </button>
+            <div className="w-px bg-white/10 mx-1" />
+            <button
+              onClick={() => setActiveSelection('end')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeSelection === 'end' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'hover:bg-white/10 text-white/70'}`}
+            >
+              Set Dest
+            </button>
 
-              <div className="w-px bg-white/10 mx-1" />
+            <div className="w-px bg-white/10 mx-1" />
 
-              <button
-                onClick={handleRecenter}
-                className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all flex items-center"
-                title="Recenter Map"
-              >
-                <LocateFixed size={18} />
-              </button>
+            <button
+              onClick={handleRecenter}
+              className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all flex items-center"
+              title="Recenter Map"
+            >
+              <LocateFixed size={18} />
+            </button>
 
-              {/* Geo Status Indicator */}
-              <div className="flex items-center gap-2 px-2 border-l border-white/10 ml-2">
-                <div className={`w-2 h-2 rounded-full ${geoStatusColor}`} />
-                <span className="text-[10px] text-white/50 uppercase">{geo.loading ? 'Locating...' : 'GPS Active'}</span>
-              </div>
+            {/* Geo Status Indicator */}
+            <div className="flex items-center gap-2 px-2 border-l border-white/10 ml-2">
+              <div className={`w-2 h-2 rounded-full ${geoStatusColor}`} />
+              <span className="text-[10px] text-white/50 uppercase">{geo.loading ? 'Locating...' : 'GPS Active'}</span>
             </div>
+          </div>
 
+          <div className="w-full h-full relative z-[1]">
             <InteractiveMap
               onStartSet={(lat, lng) => handleMapClick(lat, lng)}
               onEndSet={(lat, lng) => handleMapClick(lat, lng)}
@@ -194,13 +194,13 @@ export default function Dashboard() {
               center={mapCenter}
               routePoints={routePoints}
             />
+          </div>
 
-            {/* Map Decorative overlay */}
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-6 z-[400] pointer-events-none">
-              <h2 className="text-4xl font-black italic tracking-tighter text-white/20">LIVE MAP</h2>
-            </div>
-          </GlassCard>
+          {/* Map Decorative overlay */}
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent pointer-events-none z-[1000]" />
+          <div className="absolute bottom-4 left-6 z-[1000] pointer-events-none">
+            <h2 className="text-4xl font-black italic tracking-tighter text-white/20">LIVE MAP</h2>
+          </div>
         </section>
 
         {/* SECTION 3: RISKS & ALERTS */}
