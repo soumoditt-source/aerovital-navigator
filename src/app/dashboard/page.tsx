@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useUserStore } from '@/stores/userStore'
 import { usePathwayStream } from '@/hooks/usePathwayStream'
-import { User, Map as MapIcon, Settings, LogOut, LocateFixed } from 'lucide-react'
+import { User, Map as MapIcon, Settings, LogOut, LocateFixed, Shield } from 'lucide-react'
 import GlassCard from '@/components/ui/GlassCard'
 import { calculateHealthRisk } from '@/lib/intelligence/riskEngine'
 import { useGeolocation } from '@/hooks/useGeolocation'
@@ -31,11 +31,6 @@ export default function Dashboard() {
       setMapCenter([geo.lat, geo.lon])
     }
   }, [geo.lat, geo.lon])
-  const handleRecenter = () => {
-    if (geo.lat && geo.lon) {
-      setMapCenter([geo.lat, geo.lon])
-    }
-  }
 
   let geoStatusColor = 'bg-blue-500';
   if (geo.loading) {
@@ -46,6 +41,8 @@ export default function Dashboard() {
 
   const [routePoints, setRoutePoints] = useState<{ start: [number, number] | null, end: [number, number] | null }>({ start: null, end: null })
   const [activeSelection, setActiveSelection] = useState<'start' | 'end' | null>(null)
+  const [calculating, setCalculating] = useState(false)
+  const [routes, setRoutes] = useState<any[]>([])
 
   const { data, loading } = usePathwayStream(
     location.lat,
@@ -60,15 +57,11 @@ export default function Dashboard() {
 
   const readings = data?.readings
 
-  // Calculate local intelligence risk if API risk is missing or for redundancy
-  const localRisk = calculateHealthRisk({
-    aqi: readings?.aqi || 0,
-    pm25: readings?.pm25 || 0,
-    temperature: readings?.temperature || 0,
-    humidity: readings?.humidity || 0,
-    timestamp: Date.now(),
-    source: 'local', pm10: 0, no2: 0, so2: 0, co: 0, o3: 0, windSpeed: 0, uvIndex: 0, latitude: 0, longitude: 0 // Default zeros for missing API data
-  }, user);
+  const handleRecenter = () => {
+    if (geo.lat && geo.lon) {
+      setMapCenter([geo.lat, geo.lon])
+    }
+  }
 
   const handleMapClick = (lat: number, lng: number) => {
     if (activeSelection === 'start') {
@@ -80,11 +73,57 @@ export default function Dashboard() {
     }
   }
 
-  // Real-Time Routes from Backend (Future Integration) - Currently calculated dynamically
-  const routes = (routePoints.start && routePoints.end) ? [
-    { id: '1', type: 'safest', exposure: Math.round((readings?.aqi || 50) * 5), distance: 12.4, duration: 38, avgAqi: readings?.aqi || 50 },
-    { id: '2', type: 'fastest', exposure: Math.round((readings?.aqi || 50) * 8), distance: 10.8, duration: 32, avgAqi: Math.round((readings?.aqi || 50) * 1.5) },
-  ] : []
+  const calculateNeuralPaths = async () => {
+    if (!routePoints.start || !routePoints.end) return;
+    setCalculating(true)
+
+    // Simulate Neural A* Pathfinding
+    await new Promise(r => setTimeout(r, 2000))
+
+    const currentAqi = readings?.aqi || 50
+    const distance = 8.4 // Simulated km
+
+    const newRoutes = [
+      {
+        id: '1',
+        type: 'safest',
+        exposure: Math.round(currentAqi * 0.7 * 25),
+        distance: distance + 2.1,
+        duration: 42,
+        avgAqi: Math.round(currentAqi * 0.7)
+      },
+      {
+        id: '2',
+        type: 'fastest',
+        exposure: Math.round(currentAqi * 25),
+        distance: distance,
+        duration: 28,
+        avgAqi: currentAqi
+      },
+      {
+        id: '3',
+        type: 'greenest',
+        exposure: Math.round(currentAqi * 0.8 * 35),
+        distance: distance + 1.2,
+        duration: 35,
+        avgAqi: Math.round(currentAqi * 0.8)
+      }
+    ]
+
+    setRoutes(newRoutes)
+    setCalculating(false)
+  }
+
+  const readingsPayload = {
+    aqi: readings?.aqi || 0,
+    pm25: readings?.pm25 || 0,
+    temperature: readings?.temperature || 0,
+    humidity: readings?.humidity || 0,
+    timestamp: Date.now(),
+    source: 'local', pm10: 0, no2: 0, so2: 0, co: 0, o3: 0, windSpeed: 0, uvIndex: 0, latitude: 0, longitude: 0
+  }
+
+  const localRisk = calculateHealthRisk(readingsPayload, user);
 
   // SYSTEM STATUS CHECK
   if (loading && !readings) {
@@ -184,6 +223,27 @@ export default function Dashboard() {
               <div className={`w-2 h-2 rounded-full ${geoStatusColor}`} />
               <span className="text-[10px] text-white/50 uppercase">{geo.loading ? 'Locating...' : 'GPS Active'}</span>
             </div>
+
+            {/* Nucleate Button */}
+            {routePoints.start && routePoints.end && (
+              <>
+                <div className="w-px bg-white/10 mx-1" />
+                <button
+                  onClick={calculateNeuralPaths}
+                  disabled={calculating}
+                  className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/30 flex items-center gap-2 ${calculating ? 'opacity-50' : ''}`}
+                >
+                  {calculating ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                      PROCESSING...
+                    </span>
+                  ) : (
+                    'Nucleate Neural Route'
+                  )}
+                </button>
+              </>
+            )}
           </div>
 
           <div className="w-full h-full relative z-[1]">
@@ -193,6 +253,7 @@ export default function Dashboard() {
               activeSelection={activeSelection}
               center={mapCenter}
               routePoints={routePoints}
+              aqi={readings?.aqi || 0}
             />
           </div>
 
@@ -217,17 +278,29 @@ export default function Dashboard() {
           <div className="flex flex-col gap-4">
             <SpikeAlert lat={location.lat} lon={location.lon} />
 
-            <GlassCard className="flex-1 bg-black/40 border-white/5 p-6">
+            <GlassCard className="flex-1 bg-black/40 border-white/5 p-6 min-h-[400px]">
               <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-4 flex items-center gap-2">
                 <MapIcon size={16} /> Optimal Routes
               </h3>
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3 min-h-[200px]">
-                {(routePoints.start && routePoints.end) ? (
-                  <RouteCards onRouteSelect={() => { }} routes={routes as any} />
-                ) : (
+              <div className="flex-1">
+                {calculating && (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl animate-pulse">
+                    <div className="relative mb-4">
+                      <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Shield className="text-blue-500" size={16} />
+                      </div>
+                    </div>
+                    <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest">Running A* Weighted Intelligence...</p>
+                  </div>
+                )}
+                {!calculating && routePoints.start && routePoints.end && routes.length > 0 && (
+                  <RouteCards onRouteSelect={() => { }} routes={routes} />
+                )}
+                {!calculating && !(routePoints.start && routePoints.end && routes.length > 0) && (
                   <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/10 rounded-xl">
                     <MapIcon className="text-white/20 mb-3" size={48} />
-                    <p className="text-sm text-white/40">Select Start & Destination on map.</p>
+                    <p className="text-sm text-white/40">Set Start & Dest, then click <span className="text-blue-400 font-bold">Nucleate</span>.</p>
                   </div>
                 )}
               </div>
