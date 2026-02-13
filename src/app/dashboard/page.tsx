@@ -14,8 +14,6 @@ const MetricsPanel = dynamic(() => import('@/components/dashboard/MetricsPanel')
 const RouteCards = dynamic(() => import('@/components/dashboard/RouteCards'), { ssr: false })
 const SpikeAlert = dynamic(() => import('@/components/dashboard/SpikeAlert'), { ssr: false })
 const InteractiveMap = dynamic(() => import('@/components/map/InteractiveMap'), { ssr: false })
-const VoiceAgent = dynamic(() => import('@/components/voice/VoiceAgent'), { ssr: false })
-import ChatAssistant from '@/components/chat/ChatAssistant'
 import PathwayDeepBrain from '@/components/intelligence/PathwayDeepBrain'
 
 export default function Dashboard() {
@@ -137,7 +135,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[url('/bg-abstract.jpg')] bg-cover bg-fixed text-white font-sans p-4 lg:p-6 pb-24 overflow-y-auto flex flex-col gap-6">
+    <div className="min-h-screen relative text-white font-sans p-4 lg:p-6 pb-24 flex flex-col gap-6">
       {/* GLOBAL BACKGROUND */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent" />
 
@@ -340,8 +338,6 @@ export default function Dashboard() {
 
       </main>
 
-      <ChatAssistant />
-      <VoiceAgent />
     </div>
   )
 }

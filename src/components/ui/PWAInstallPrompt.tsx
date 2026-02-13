@@ -87,10 +87,10 @@ export default function PWAInstallPrompt() {
         <AnimatePresence>
             {showPrompt && (
                 <motion.div
-                    initial={{ y: 100, opacity: 0 }}
+                    initial={{ y: -100, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 100, opacity: 0 }}
-                    className="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 md:w-96 z-[70]"
+                    exit={{ y: -100, opacity: 0 }}
+                    className="fixed top-20 left-4 right-4 md:left-auto md:right-6 md:w-96 z-[80]"
                 >
                     <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 shadow-2xl border border-white/20">
                         <button
