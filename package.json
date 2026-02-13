@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@swc/helpers": "0.5.18",
     "@types/canvas-confetti": "^1.9.0",
     "axios": "^1.13.5",
     "canvas-confetti": "^1.9.4",
