@@ -11,10 +11,10 @@ interface AtmosphereState {
 }
 
 export const useAtmosphereStore = create<AtmosphereState>((set) => ({
-    aqi: 152,
-    pm25: 84,
-    temperature: 28,
-    humidity: 65,
+    aqi: 0,
+    pm25: 0,
+    temperature: 0,
+    humidity: 0,
     loading: true,
     setReadings: (readings) => set({ ...readings, loading: false }),
     setLoading: (loading) => set({ loading }),

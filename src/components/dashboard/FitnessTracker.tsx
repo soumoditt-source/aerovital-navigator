@@ -1,9 +1,30 @@
-'use client'
-
+import { useAtmosphereStore } from '@/stores/atmosphereStore'
 import { Dumbbell, Bike, Footprints } from 'lucide-react'
 import GlassCard from '../ui/GlassCard'
 
 export default function FitnessTracker() {
+  const { aqi } = useAtmosphereStore()
+
+  const getStatus = (activityId: string) => {
+    if (aqi === 0) return { status: 'Pending', color: 'yellow', desc: 'Awaiting sensor data...' };
+
+    if (activityId === 'gym') return { status: 'Recommended', color: 'green', desc: 'Optimal air quality indoors.' };
+
+    if (aqi > 150) {
+      return { status: 'Restricted', color: 'red', desc: 'High pollution detected. Avoid outdoors.' };
+    } else if (aqi > 100) {
+      return { status: 'Moderate', color: 'yellow', desc: 'Sensitive groups should limit duration.' };
+    } else {
+      return { status: 'Recommended', color: 'green', desc: 'Safe for intense outdoor activity.' };
+    }
+  }
+
+  const activities = [
+    { id: 'run', icon: Footprints, label: 'Outdoor Run' },
+    { id: 'bike', icon: Bike, label: 'Cycling' },
+    { id: 'gym', icon: Dumbbell, label: 'Indoor Gym' }
+  ].map(act => ({ ...act, ...getStatus(act.id) }));
+
   return (
     <GlassCard className="h-full border-white/10 bg-black/40">
       <div className="flex items-center justify-between mb-6">
@@ -16,31 +37,10 @@ export default function FitnessTracker() {
       </div>
 
       <div className="space-y-4">
-        {[{
-          id: 'run',
-          icon: Footprints,
-          label: 'Outdoor Run',
-          status: 'Restricted',
-          color: 'red',
-          desc: 'High PM2.5 levels detected.'
-        }, {
-          id: 'bike',
-          icon: Bike,
-          label: 'Cycling',
-          status: 'Moderate',
-          color: 'yellow',
-          desc: 'Use mask if duration > 30m.'
-        }, {
-          id: 'gym',
-          icon: Dumbbell,
-          label: 'Indoor Gym',
-          status: 'Recommended',
-          color: 'green',
-          desc: 'Optimal air quality indoors.'
-        }].map((activity) => {
+        {activities.map((activity) => {
           const statusStyles: Record<string, string> = {
-            green: 'bg-green-500/20 text-green-400 border border-green-500/30',
-            red: 'bg-red-500/20 text-red-400 border border-red-500/30',
+            green: 'bg-green-500/20 text-green-400 border border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.1)]',
+            red: 'bg-red-500/20 text-red-400 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.1)]',
             yellow: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
           };
           return (
@@ -63,5 +63,5 @@ export default function FitnessTracker() {
         })}
       </div>
     </GlassCard>
-  )
+  );
 }

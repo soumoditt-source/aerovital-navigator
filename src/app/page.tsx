@@ -17,8 +17,6 @@ export default function Landing() {
   })
 
   const y1 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
-  const y2 = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
   return (
     <div ref={containerRef} className="bg-black min-h-[200vh] text-white overflow-hidden relative selection:bg-blue-500/30">
@@ -57,7 +55,7 @@ export default function Landing() {
             transition={{ delay: 0.8 }}
             className="text-xl md:text-2xl text-blue-200/70 font-mono tracking-widest uppercase mb-12"
           >
-            Atmospheric Intelligence System v2.0
+            Atmospheric Intelligence System v3.0 ULTIMATE
           </motion.p>
 
           <motion.div
@@ -79,12 +77,12 @@ export default function Landing() {
       <section className="relative z-10 py-32 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { icon: Shield, title: 'Bio-Shield', desc: 'Real-time health risk assessment based on personalized biological markers.', color: 'blue' },
-            { icon: Zap, title: 'Neural Routing', desc: 'AI-driven pathfinding to minimize pollution exposure by up to 45%.', color: 'purple' },
-            { icon: Wind, title: 'Atmosphere Scan', desc: 'Live molecular analysis of PM2.5, NO2, and Ozone layers.', color: 'cyan' }
+            { id: 'shield', icon: Shield, title: 'Bio-Shield', desc: 'Real-time health risk assessment based on personalized biological markers.', color: 'blue' },
+            { id: 'routing', icon: Zap, title: 'Neural Routing', desc: 'AI-driven pathfinding to minimize pollution exposure by up to 45%.', color: 'purple' },
+            { id: 'scan', icon: Wind, title: 'Atmosphere Scan', desc: 'Live molecular analysis of PM2.5, NO2, and Ozone layers.', color: 'cyan' }
           ].map((feature, i) => (
             <motion.div
-              key={i}
+              key={feature.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

@@ -60,12 +60,12 @@ export default function Dashboard() {
 
   // Calculate local intelligence risk if API risk is missing or for redundancy
   const localRisk = calculateHealthRisk({
-    aqi: readings?.aqi || 152,
-    pm25: readings?.pm25 || 84,
-    temperature: readings?.temperature || 28,
-    humidity: readings?.humidity || 65,
+    aqi: readings?.aqi || 0,
+    pm25: readings?.pm25 || 0,
+    temperature: readings?.temperature || 0,
+    humidity: readings?.humidity || 0,
     timestamp: Date.now(),
-    source: 'local', pm10: 0, no2: 0, so2: 0, co: 0, o3: 0, windSpeed: 0, uvIndex: 0, latitude: 0, longitude: 0 // Mock defaults for missing API data
+    source: 'local', pm10: 0, no2: 0, so2: 0, co: 0, o3: 0, windSpeed: 0, uvIndex: 0, latitude: 0, longitude: 0 // Default zeros for missing API data
   }, user);
 
   const handleMapClick = (lat: number, lng: number) => {
@@ -108,7 +108,7 @@ export default function Dashboard() {
             <h1 className="text-lg font-black tracking-tighter uppercase italic">
               AeroVital <span className="text-blue-400">Navigator</span>
             </h1>
-            <p className="text-[10px] text-white/50 font-mono tracking-widest">SYSTEM ONLINE // v2.0</p>
+            <p className="text-[10px] text-white/50 font-mono tracking-widest">SYSTEM ONLINE // v3.0 ULTIMATE</p>
           </div>
         </div>
 
@@ -138,10 +138,10 @@ export default function Dashboard() {
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
           <div className="lg:col-span-12">
             <MetricsPanel
-              aqi={readings?.aqi || 152}
-              pm25={readings?.pm25 || 84}
-              temperature={readings?.temperature || 28}
-              humidity={readings?.humidity || 65}
+              aqi={readings?.aqi || 0}
+              pm25={readings?.pm25 || 0}
+              temperature={readings?.temperature || 0}
+              humidity={readings?.humidity || 0}
             />
           </div>
         </section>
