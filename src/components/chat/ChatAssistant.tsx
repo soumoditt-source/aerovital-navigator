@@ -122,8 +122,8 @@ export default function ChatAssistant() {
                                                 {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                             </div>
                                             <div className={`p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                                    ? 'bg-blue-600 text-white rounded-tr-none'
-                                                    : 'bg-white/5 border border-white/10 text-white/90 rounded-tl-none'
+                                                ? 'bg-blue-600 text-white rounded-tr-none'
+                                                : 'bg-white/5 border border-white/10 text-white/90 rounded-tl-none'
                                                 }`}>
                                                 {msg.content}
                                             </div>
@@ -151,7 +151,7 @@ export default function ChatAssistant() {
                                         type="text"
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                                         placeholder="Ask about AQI, exercise, or health..."
                                         className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
                                     />

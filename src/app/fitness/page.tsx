@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Dumbbell, Timer, Flame, ChevronRight, Play, CheckCircle } from 'lucide-react'
+import { Dumbbell, Timer, Flame, ChevronRight, Play, CheckCircle, AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import GlassCard from '@/components/ui/GlassCard' // Assuming this exists or I should mock it/import it
+import GlassCard from '@/components/ui/GlassCard'
 import { useUserStore } from '@/stores/userStore'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
-import { AlertCircle } from 'lucide-react'
 
 // Mock Data for "Six Pack in 30 Days" Program
 const DAYS = Array.from({ length: 30 }, (_, i) => ({
@@ -115,7 +114,11 @@ export default function FitnessPage() {
                     >
                         {/* Header */}
                         <div className="h-64 relative">
-                            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover opacity-50" />
+                            <img
+                                src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"
+                                className="w-full h-full object-cover opacity-50"
+                                alt="Workout Preview"
+                            />
                             <div className="absolute top-0 left-0 p-6 w-full flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
                                 <button onClick={() => setSelectedDay(null)} className="p-2 bg-white/10 rounded-full backdrop-blur">
                                     <ChevronRight className="rotate-180" />

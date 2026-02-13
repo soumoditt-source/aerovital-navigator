@@ -8,13 +8,14 @@
 
 ---
 
-## 🚀 Key Features
+## 🚀 Key Features (v2.0 Ultimate Overhaul)
 
 *   **Real-Time Dashboard**: Live monitoring of AQI, PM2.5, Temperature, and Humidity.
-*   **Personalized Health Risk**: AI-driven analysis of Cardiac, Asthma, and Thyroid risks based on user biology.
-*   **Intelligent Routing**: Find the **Safest**, **Fastest**, or **Greenest** path to your destination.
-*   **Spike Detection**: Instant alerts for sudden pollution spikes in your area.
-*   **Fitness Tracker**: Smart recommendations for outdoor activities based on current atmospheric conditions.
+*   **Neural Assistant (Chatbot)**: An in-app AI assistant powered by **Pathway RAG** for real-time health analysis and status checks.
+*   **Armor Core Fitness**: A premium 30-day fitness program that adapts dynamically to current atmospheric conditions.
+*   **Global Intel Feed**: Live news and environmental alerts synced with local telemetry.
+*   **Intelligent Routing**: Find the **Safest**, **Fastest**, or **Greenest** path with dark-matter themed maps.
+*   **Neural Orientation**: guided tour system for new users to ensure 100% mission readiness.
 
 ## 🛠️ Tech Stack
 
