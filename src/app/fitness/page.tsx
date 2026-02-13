@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Dumbbell, Timer, Flame, ChevronRight, Play, CheckCircle, AlertCircle } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import GlassCard from '@/components/ui/GlassCard'
+import Image from 'next/image'
 import { useUserStore } from '@/stores/userStore'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
 
@@ -24,11 +23,9 @@ const DAYS = Array.from({ length: 30 }, (_, i) => ({
 }))
 
 export default function FitnessPage() {
-    const router = useRouter()
     const user = useUserStore(state => state.user)
     const { aqi } = useAtmosphereStore()
     const [selectedDay, setSelectedDay] = useState<typeof DAYS[0] | null>(null)
-    const [isWorkingOut, setIsWorkingOut] = useState(false)
 
     return (
         <div id="fitness-roadmap" className="min-h-screen bg-black text-white font-sans pb-24 overflow-y-auto">
@@ -114,10 +111,12 @@ export default function FitnessPage() {
                     >
                         {/* Header */}
                         <div className="h-64 relative">
-                            <img
+                            <Image
                                 src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"
-                                className="w-full h-full object-cover opacity-50"
+                                fill
+                                className="object-cover opacity-50"
                                 alt="Workout Preview"
+                                priority
                             />
                             <div className="absolute top-0 left-0 p-6 w-full flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
                                 <button onClick={() => setSelectedDay(null)} className="p-2 bg-white/10 rounded-full backdrop-blur">
@@ -133,7 +132,7 @@ export default function FitnessPage() {
                         {/* Exercise List */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
                             {selectedDay.exercises.length > 0 ? selectedDay.exercises.map((ex, idx) => (
-                                <div key={idx} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
+                                <div key={`${selectedDay.day}-${ex.name}`} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
                                     <div className="w-16 h-16 rounded-lg bg-gray-800 flex items-center justify-center">
                                         {/* Placeholder Animation */}
                                         <Dumbbell className="text-white/20 animate-pulse" />

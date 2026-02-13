@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 import 'leaflet/dist/leaflet.css'
@@ -17,18 +17,19 @@ export const metadata: Metadata = {
   title: 'AeroVital Navigator - Atmospheric Health Protection',
   description: 'Real-time air quality monitoring with personalized health risk assessment',
   manifest: '/manifest.json',
-  themeColor: '#3b82f6',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'AeroVital'
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false
   }
+}
+
+export const viewport: Viewport = {
+  themeColor: '#3b82f6',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false
 }
 
 export default function RootLayout({

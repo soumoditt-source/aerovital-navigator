@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, User, Bot, CheckCircle, ShieldCheck, Activity } from 'lucide-react'
+import Image from 'next/image'
 import GlassCard from '@/components/ui/GlassCard'
 import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/stores/userStore'
@@ -121,7 +122,13 @@ export default function OnboardingChat() {
     return (
         <div className="flex flex-col h-screen max-w-4xl mx-auto p-4 md:p-8 relative z-10">
             <div className="absolute top-1/2 right-0 -translate-y-1/2 w-full md:w-1/2 h-full opacity-10 pointer-events-none z-0">
-                <img src="/anatomy_3d.png" alt="3D Anatomy" className="w-full h-full object-contain" />
+                <Image
+                    src="/anatomy_3d.png"
+                    alt="3D Anatomy"
+                    fill
+                    className="object-contain"
+                    priority
+                />
             </div>
 
             <header className="flex-none mb-6 relative z-10 flex items-center justify-between">

@@ -28,11 +28,18 @@ export async function POST(req: Request) {
         });
 
         const data = await response.json();
-        const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-        // Clean up JSON from markdown if exists
-        const cleanJson = resultText.replaceAll('```json', '').replaceAll('```', '').trim();
-        return NextResponse.json(JSON.parse(cleanJson));
+        // Robust JSON extraction from AI response (handles markdown blocks)
+        const jsonMatch = resultText.match(/\{[\s\S]*\}/);
+        const cleanJson = jsonMatch ? jsonMatch[0] : resultText;
+
+        try {
+            return NextResponse.json(JSON.parse(cleanJson));
+        } catch (parseErr) {
+            console.error('JSON Parse Error:', parseErr, 'Raw Text:', resultText);
+            return NextResponse.json({ error: 'Data extraction failed - invalid format' }, { status: 422 });
+        }
 
     } catch (error) {
         console.error('OCR Error:', error);

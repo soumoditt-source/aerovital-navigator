@@ -15,6 +15,11 @@ const config: Config = {
             },
         },
     },
+    safelist: [
+        {
+            pattern: /(bg|text|border|from|to|via)-(red|green|blue|purple|orange|indigo|slate)-(400|500|600|900)\/?(\d{1,2})?/,
+        },
+    ],
     plugins: [],
 };
 export default config;
