@@ -1,29 +1,41 @@
-/**
- * AEROVITAL NAVIGATOR - Ultimate Dashboard
- * @author Soumoditya Das <soumoditt@gmail.com>
- */
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useUserStore } from '@/stores/userStore'
 import { usePathwayStream } from '@/hooks/usePathwayStream'
-import { User, Map as MapIcon, Settings, LogOut } from 'lucide-react'
+import { User, Map as MapIcon, Settings, LogOut, LocateFixed } from 'lucide-react'
 import GlassCard from '@/components/ui/GlassCard'
 import { calculateHealthRisk } from '@/lib/intelligence/riskEngine'
+import { useGeolocation } from '@/hooks/useGeolocation'
 
 const RiskGauges = dynamic(() => import('@/components/dashboard/RiskGauges'), { ssr: false })
 const MetricsPanel = dynamic(() => import('@/components/dashboard/MetricsPanel'), { ssr: false })
 const RouteCards = dynamic(() => import('@/components/dashboard/RouteCards'), { ssr: false })
-const FitnessTracker = dynamic(() => import('@/components/dashboard/FitnessTracker'), { ssr: false })
 const SpikeAlert = dynamic(() => import('@/components/dashboard/SpikeAlert'), { ssr: false })
 const InteractiveMap = dynamic(() => import('@/components/map/InteractiveMap'), { ssr: false })
 const VoiceAgent = dynamic(() => import('@/components/voice/VoiceAgent'), { ssr: false })
-const FitnessCoach = dynamic(() => import('@/components/fitness/FitnessCoach'), { ssr: false })
 
 export default function Dashboard() {
   const user = useUserStore(state => state.user)
-  const [location] = useState({ lat: 20.5937, lon: 78.9629 })
+  const geo = useGeolocation()
+  const [location, setLocation] = useState({ lat: 20.5937, lon: 78.9629 }) // Default fallback
+  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629])
+
+  // Sync Location and Map Center with Geolocation
+  useEffect(() => {
+    if (geo.lat && geo.lon) {
+      setLocation({ lat: geo.lat, lon: geo.lon })
+      setMapCenter([geo.lat, geo.lon])
+    }
+  }, [geo.lat, geo.lon])
+
+  const handleRecenter = () => {
+    if (geo.lat && geo.lon) {
+      setMapCenter([geo.lat, geo.lon])
+    }
+  }
+
   const [routePoints, setRoutePoints] = useState<{ start: [number, number] | null, end: [number, number] | null }>({ start: null, end: null })
   const [activeSelection, setActiveSelection] = useState<'start' | 'end' | null>(null)
 
@@ -62,8 +74,6 @@ export default function Dashboard() {
 
   // Real-Time Routes from Backend (Future Integration) - Currently calculated dynamically
   const routes = (routePoints.start && routePoints.end) ? [
-    // In a full real-time setup, these would come from the Pathway 'RouteOptimizer' module
-    // For now, we calculate them based on the Real-Time AQI layer to give accurate "Safest" vs "Fastest"
     { id: '1', type: 'safest', exposure: Math.round((readings?.aqi || 50) * 5), distance: 12.4, duration: 38, avgAqi: readings?.aqi || 50 },
     { id: '2', type: 'fastest', exposure: Math.round((readings?.aqi || 50) * 8), distance: 10.8, duration: 32, avgAqi: Math.round((readings?.aqi || 50) * 1.5) },
   ] : []
@@ -79,20 +89,9 @@ export default function Dashboard() {
     )
   }
 
-  // SYSTEM STATUS CHECK
-  if (loading && !readings) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white flex-col gap-4">
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="font-mono text-blue-400 animate-pulse">CONNECTING TO PATHWAY SATELLITE STREAM...</p>
-        <p className="text-xs text-white/30">Ensuring 100% Real-Time Data Integrity</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-[url('/bg-abstract.jpg')] bg-cover bg-fixed text-white font-sans p-4 lg:p-6 overflow-hidden flex flex-col gap-4">
-      {/* GLOBAL BACKGROUND - using CSS gradient in globals.css, this adds texture if needed */}
+    <div className="min-h-screen bg-[url('/bg-abstract.jpg')] bg-cover bg-fixed text-white font-sans p-4 lg:p-6 pb-24 overflow-y-auto flex flex-col gap-6">
+      {/* GLOBAL BACKGROUND */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent" />
 
       {/* HEADER */}
@@ -110,7 +109,6 @@ export default function Dashboard() {
         <GlassCard className="flex items-center gap-4 px-6 py-2 rounded-full pointer-events-auto">
           <div className="flex items-center gap-3 border-r border-white/10 pr-4">
             <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden border border-white/20">
-              {/* User Avatar Placeholder */}
               <User className="w-full h-full p-1 text-white/50" />
             </div>
             <div className="text-right">
@@ -127,49 +125,25 @@ export default function Dashboard() {
         </GlassCard>
       </header>
 
-      {/* MAIN BENTO GRID */}
-      <main className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-12 grid-rows-[auto_1fr] gap-4 lg:gap-6 min-h-0">
+      {/* MAIN CONTENT STACK (Mobile First, Scrollable) */}
+      <main className="relative z-10 flex flex-col gap-6 w-full max-w-7xl mx-auto">
 
-        {/* ROW 1: METRICS (Spans Full Width) */}
-        <div className="lg:col-span-12 h-32 lg:h-40">
-          <MetricsPanel
-            aqi={readings?.aqi || 152}
-            pm25={readings?.pm25 || 84}
-            temperature={readings?.temperature || 28}
-            humidity={readings?.humidity || 65}
-          />
-        </div>
-
-        {/* ROW 2: MAIN CONTENT */}
-
-        {/* COL 1: LEFT SIDEBAR (Risks & Fitness) */}
-        <div className="lg:col-span-3 flex flex-col gap-4 h-full min-h-0">
-          <div className="flex-1 min-h-[300px]">
-            <RiskGauges
-              cardiacRisk={localRisk.cardiacRisk}
-              asthmaRisk={localRisk.asthmaRisk}
-              exerciseSafety={localRisk.generalRisk} // Using general risk as inverse safety for now
+        {/* SECTION 1: VITALS & METRICS */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-12">
+            <MetricsPanel
+              aqi={readings?.aqi || 152}
+              pm25={readings?.pm25 || 84}
+              temperature={readings?.temperature || 28}
+              humidity={readings?.humidity || 65}
             />
           </div>
-          <div className="h-64 lg:h-auto lg:flex-1">
-            <FitnessCoach
-              aqiData={{
-                aqi: readings?.aqi || 152,
-                pm25: readings?.pm25 || 84,
-                temperature: readings?.temperature || 28,
-                humidity: readings?.humidity || 65,
-                timestamp: Date.now(),
-                source: 'local', pm10: 0, no2: 0, so2: 0, co: 0, o3: 0, windSpeed: 0, uvIndex: 0, latitude: 0, longitude: 0
-              }}
-            />
-          </div>
-        </div>
+        </section>
 
-        {/* COL 2: CENTER MAP (Dominant) */}
-        <div className="lg:col-span-6 h-[500px] lg:h-auto min-h-0 relative group">
-          <GlassCard className="h-full w-full p-0 overflow-hidden border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.1)] relative z-0">
-
-            {/* Map Controls Overlay */}
+        {/* SECTION 2: MAP & NAVIGATION */}
+        <section className="h-[500px] lg:h-[600px] w-full relative group rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+          <GlassCard className="h-full w-full p-0 relative z-0">
+            {/* Map Controls */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] flex gap-2 p-1 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 shadow-xl">
               <button
                 onClick={() => setActiveSelection('start')}
@@ -184,12 +158,29 @@ export default function Dashboard() {
               >
                 Set Dest
               </button>
+
+              <div className="w-px bg-white/10 mx-1" />
+
+              <button
+                onClick={handleRecenter}
+                className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all flex items-center"
+                title="Recenter Map"
+              >
+                <LocateFixed size={18} />
+              </button>
+
+              {/* Geo Status Indicator */}
+              <div className="flex items-center gap-2 px-2 border-l border-white/10 ml-2">
+                <div className={`w-2 h-2 rounded-full ${geo.loading ? 'bg-yellow-500 animate-pulse' : geo.error ? 'bg-red-500' : 'bg-blue-500'}`} />
+                <span className="text-[10px] text-white/50 uppercase">{geo.loading ? 'Locating...' : 'GPS Active'}</span>
+              </div>
             </div>
 
             <InteractiveMap
               onStartSet={(lat, lng) => handleMapClick(lat, lng)}
               onEndSet={(lat, lng) => handleMapClick(lat, lng)}
               activeSelection={activeSelection}
+              center={mapCenter}
             />
 
             {/* Map Decorative overlay */}
@@ -198,31 +189,39 @@ export default function Dashboard() {
               <h2 className="text-4xl font-black italic tracking-tighter text-white/20">LIVE MAP</h2>
             </div>
           </GlassCard>
-        </div>
+        </section>
 
-        {/* COL 3: RIGHT SIDEBAR (Routes & Alerts) */}
-        <div className="lg:col-span-3 flex flex-col gap-4 h-full min-h-0">
-          <div className="h-auto">
-            <SpikeAlert lat={location.lat} lon={location.lon} />
+        {/* SECTION 3: RISKS & ALERTS */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-black/40 backdrop-blur-md border border-white/5 rounded-3xl p-6">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Settings className="animate-spin-slow" size={20} /> Real-Time Analysis</h3>
+            <RiskGauges
+              cardiacRisk={localRisk.cardiacRisk}
+              asthmaRisk={localRisk.asthmaRisk}
+              exerciseSafety={localRisk.generalRisk}
+            />
           </div>
 
-          <GlassCard className="flex-1 bg-black/40 border-white/5 flex flex-col">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-4 flex items-center gap-2">
-              <MapIcon size={16} /> Route Optimization
-            </h3>
+          <div className="flex flex-col gap-4">
+            <SpikeAlert lat={location.lat} lon={location.lon} />
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
-              {(routePoints.start && routePoints.end) ? (
-                <RouteCards onRouteSelect={() => { }} routes={routes as any} />
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/10 rounded-xl">
-                  <MapIcon className="text-white/20 mb-3" size={48} />
-                  <p className="text-sm text-white/40">Select Start & Destination points on the map to calculate optimal paths.</p>
-                </div>
-              )}
-            </div>
-          </GlassCard>
-        </div>
+            <GlassCard className="flex-1 bg-black/40 border-white/5 p-6">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-4 flex items-center gap-2">
+                <MapIcon size={16} /> Optimal Routes
+              </h3>
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3 min-h-[200px]">
+                {(routePoints.start && routePoints.end) ? (
+                  <RouteCards onRouteSelect={() => { }} routes={routes as any} />
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/10 rounded-xl">
+                    <MapIcon className="text-white/20 mb-3" size={48} />
+                    <p className="text-sm text-white/40">Select Start & Destination on map.</p>
+                  </div>
+                )}
+              </div>
+            </GlassCard>
+          </div>
+        </section>
 
       </main>
 

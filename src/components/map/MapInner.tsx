@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
@@ -31,6 +31,14 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41]
 })
 
+function ChangeView({ center }: { center: [number, number] }) {
+  const map = useMap()
+  useEffect(() => {
+    map.setView(center, map.getZoom())
+  }, [center, map])
+  return null
+}
+
 function LocationMarker({ onPointSet, type }: { onPointSet: (lat: number, lng: number) => void, type: 'start' | 'end' }) {
   const [position, setPosition] = useState<L.LatLng | null>(null)
 
@@ -53,17 +61,20 @@ function LocationMarker({ onPointSet, type }: { onPointSet: (lat: number, lng: n
 export default function MapInner({
   onStartSet,
   onEndSet,
-  activeSelection
+  activeSelection,
+  center = [20.5937, 78.9629]
 }: {
   onStartSet: (lat: number, lng: number) => void,
   onEndSet: (lat: number, lng: number) => void,
-  activeSelection: 'start' | 'end' | null
+  activeSelection: 'start' | 'end' | null,
+  center?: [number, number]
 }) {
   return (
-    <MapContainer center={[20.5937, 78.9629]} zoom={5} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
+    <MapContainer center={center} zoom={13} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
+      <ChangeView center={center} />
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
       {activeSelection === 'start' && <LocationMarker onPointSet={onStartSet} type="start" />}
       {activeSelection === 'end' && <LocationMarker onPointSet={onEndSet} type="end" />}
