@@ -137,12 +137,12 @@ export default function HealthDataExport() {
 
         const csv = csvData.map(row => row.join(',')).join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const url = globalThis.URL.createObjectURL(blob);
+        const a = globalThis.document.createElement('a');
         a.href = url;
         a.download = `AeroVital_Data_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
-        window.URL.revokeObjectURL(url);
+        globalThis.URL.revokeObjectURL(url);
 
         toast.success('CSV data exported successfully!');
     };
@@ -241,8 +241,13 @@ function getPM25Status(pm25: number): string {
 }
 
 function getRiskAssessment(aqi: number, user: any): string {
-    const baseRisk = aqi > 150 ? 'HIGH RISK' : aqi > 100 ? 'MODERATE RISK' : 'LOW RISK';
-    const conditions = user?.healthConditions || [];
+    let baseRisk = 'LOW RISK';
+    if (aqi > 150) {
+        baseRisk = 'HIGH RISK';
+    } else if (aqi > 100) {
+        baseRisk = 'MODERATE RISK';
+    }
+    const conditions = user?.medicalConditions || {};
 
     let assessment = `Current Risk Level: ${baseRisk}. `;
 
@@ -254,7 +259,7 @@ function getRiskAssessment(aqi: number, user: any): string {
         assessment += 'Air quality is acceptable for most individuals. ';
     }
 
-    if (conditions.includes('respiratory')) {
+    if (conditions.respiratory) {
         assessment += 'Due to respiratory conditions, extra precautions are recommended. ';
     }
 
@@ -262,23 +267,27 @@ function getRiskAssessment(aqi: number, user: any): string {
 }
 
 function getRecommendations(aqi: number): string[] {
-    const recs = [];
-
     if (aqi > 150) {
-        recs.push('Avoid outdoor activities, especially strenuous exercise');
-        recs.push('Keep windows and doors closed');
-        recs.push('Use air purifiers with HEPA filters');
-        recs.push('Wear N95 masks if you must go outside');
-        recs.push('Monitor symptoms and seek medical attention if needed');
-    } else if (aqi > 100) {
-        recs.push('Limit prolonged outdoor exertion');
-        recs.push('Consider indoor exercise alternatives');
-        recs.push('Keep rescue medications accessible');
-    } else {
-        recs.push('Maintain regular outdoor activities');
-        recs.push('Stay hydrated and maintain healthy lifestyle');
-        recs.push('Monitor air quality for changes');
+        return [
+            'Avoid outdoor activities, especially strenuous exercise',
+            'Keep windows and doors closed',
+            'Use air purifiers with HEPA filters',
+            'Wear N95 masks if you must go outside',
+            'Monitor symptoms and seek medical attention if needed'
+        ];
     }
 
-    return recs;
+    if (aqi > 100) {
+        return [
+            'Limit prolonged outdoor exertion',
+            'Consider indoor exercise alternatives',
+            'Keep rescue medications accessible'
+        ];
+    }
+
+    return [
+        'Maintain regular outdoor activities',
+        'Stay hydrated and maintain healthy lifestyle',
+        'Monitor air quality for changes'
+    ];
 }

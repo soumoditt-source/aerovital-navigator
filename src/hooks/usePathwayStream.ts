@@ -18,7 +18,7 @@ export function usePathwayStream(lat: number, lon: number, userProfile: any) {
                 await startAQIStream(lat, lon)
 
                 const updateStore = (readings: any) => {
-                    if (readings && readings.success) {
+                    if (readings?.success) {
                         setAtmosphere({
                             aqi: readings.aqi,
                             pm25: readings.pm25,

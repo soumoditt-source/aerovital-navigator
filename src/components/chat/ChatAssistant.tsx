@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, X, Bot, User, MessageSquare, Sparkles, ChevronDown, Zap } from 'lucide-react'
+import { Send, X, Bot, User, MessageSquare, Sparkles, ChevronDown } from 'lucide-react'
 import GlassCard from '@/components/ui/GlassCard'
 import { useUserStore } from '@/stores/userStore'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
@@ -55,6 +55,7 @@ export default function ChatAssistant() {
             let reply = '';
 
             // Build context for AI
+            const medicalConditions = user?.medicalConditions;
             const context = {
                 user: user?.name || 'Unknown',
                 age: user?.age || 'N/A',
@@ -62,7 +63,12 @@ export default function ChatAssistant() {
                 pm25,
                 temperature,
                 humidity,
-                healthConditions: user?.healthConditions || [],
+                healthConditions: medicalConditions ? [
+                    medicalConditions.cardiovascular ? 'Cardiovascular' : '',
+                    medicalConditions.respiratory ? 'Respiratory' : '',
+                    medicalConditions.metabolic ? 'Metabolic' : '',
+                    ...(medicalConditions.specificConditions || [])
+                ].filter(Boolean) : [],
                 query: userMsg
             };
 
@@ -86,137 +92,14 @@ export default function ChatAssistant() {
 
         } catch (error) {
             console.error('Chat error:', error);
+            const errorContext = { aqi, pm25, temperature, humidity, query: userMsg };
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: `⚠️ ${AI_MODELS[selectedModel].name} is unavailable. Switching to local mode...\n\n${getLocalResponse({ aqi, pm25, temperature, humidity, query: userMsg })}`,
+                content: `⚠️ ${AI_MODELS[selectedModel].name} is unavailable. Switching to local mode...\n\n${getLocalResponse(errorContext)}`,
                 model: 'local'
             }])
             setIsTyping(false)
         }
-    }
-
-    // AI API Functions
-    async function callPathwayAPI(context: any): Promise<string> {
-        try {
-            const response = await fetch(process.env.NEXT_PUBLIC_PATHWAY_API_URL || 'http://localhost:8001', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    query: context.query,
-                    user_context: `User: ${context.user}, Age: ${context.age}, AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C`
-                }),
-                signal: AbortSignal.timeout(10000) // 10s timeout
-            });
-
-            if (!response.ok) throw new Error('Pathway API error');
-            const data = await response.json();
-            return data.response || data.message || getLocalResponse(context);
-        } catch (error) {
-            console.error('Pathway API failed:', error);
-            throw error;
-        }
-    }
-
-    async function callGeminiAPI(context: any): Promise<string> {
-        try {
-            const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'demo';
-            const prompt = `You are AeroVital AI, an atmospheric health assistant. 
-            
-Current Conditions:
-- AQI: ${context.aqi}
-- PM2.5: ${context.pm25} µg/m³
-- Temperature: ${context.temperature}°C
-- Humidity: ${context.humidity}%
-
-User: ${context.user}, Age: ${context.age}
-Health Conditions: ${context.healthConditions.join(', ') || 'None'}
-
-User Question: ${context.query}
-
-Provide a helpful, concise response focused on health and safety.`;
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                }),
-                signal: AbortSignal.timeout(15000)
-            });
-
-            if (!response.ok) throw new Error('Gemini API error');
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || getLocalResponse(context);
-        } catch (error) {
-            console.error('Gemini API failed:', error);
-            throw error;
-        }
-    }
-
-    async function callGroqAPI(context: any): Promise<string> {
-        try {
-            const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
-            if (!apiKey) throw new Error('Groq API key not configured');
-
-            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: 'llama3-8b-8192',
-                    messages: [{
-                        role: 'system',
-                        content: `You are AeroVital AI. Current AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C. User: ${context.user}, Age: ${context.age}.`
-                    }, {
-                        role: 'user',
-                        content: context.query
-                    }],
-                    max_tokens: 300,
-                    temperature: 0.7
-                }),
-                signal: AbortSignal.timeout(10000)
-            });
-
-            if (!response.ok) throw new Error('Groq API error');
-            const data = await response.json();
-            return data.choices?.[0]?.message?.content || getLocalResponse(context);
-        } catch (error) {
-            console.error('Groq API failed:', error);
-            throw error;
-        }
-    }
-
-    function getLocalResponse(context: any): string {
-        const { aqi, pm25, temperature, query } = context;
-        const q = query.toLowerCase();
-
-        // Health risk assessment
-        if (q.includes('safe') || q.includes('outside') || q.includes('run') || q.includes('exercise')) {
-            if (aqi > 200) {
-                return `⚠️ **UNSAFE CONDITIONS**\n\nAQI is ${aqi} (Very Unhealthy). I strongly recommend:\n• Stay indoors\n• Keep windows closed\n• Use air purifiers\n• Avoid all outdoor activities\n• Wear N95 mask if you must go out`;
-            } else if (aqi > 150) {
-                return `⚠️ **CAUTION ADVISED**\n\nAQI is ${aqi} (Unhealthy). Recommendations:\n• Limit outdoor time\n• Avoid strenuous exercise\n• Sensitive groups should stay indoors\n• Consider wearing a mask`;
-            } else if (aqi > 100) {
-                return `✅ **MODERATE CONDITIONS**\n\nAQI is ${aqi}. It's relatively safe, but:\n• Sensitive individuals should limit prolonged outdoor exertion\n• Light exercise is okay\n• Monitor for symptoms`;
-            } else {
-                return `✅ **GOOD CONDITIONS**\n\nAQI is ${aqi} - excellent! You can:\n• Exercise outdoors safely\n• Enjoy outdoor activities\n• No special precautions needed`;
-            }
-        }
-
-        // AQI information
-        if (q.includes('aqi') || q.includes('air quality')) {
-            return `📊 **Current Air Quality**\n\n• AQI: ${aqi}\n• PM2.5: ${pm25} µg/m³\n• Temperature: ${temperature}°C\n\nStatus: ${aqi <= 50 ? 'Good' : aqi <= 100 ? 'Moderate' : aqi <= 150 ? 'Unhealthy for Sensitive Groups' : aqi <= 200 ? 'Unhealthy' : 'Very Unhealthy'}`;
-        }
-
-        // Health advice
-        if (q.includes('health') || q.includes('symptoms')) {
-            return `🏥 **Health Guidance**\n\nWith current AQI of ${aqi}:\n\n${aqi > 150 ? '• Watch for: coughing, throat irritation, breathing difficulty\n• Keep rescue medications handy\n• Consult doctor if symptoms worsen' : '• No immediate health concerns\n• Stay hydrated\n• Monitor air quality changes'}`;
-        }
-
-        // Default response
-        return `I'm your AeroVital AI assistant. Current conditions:\n\n📊 AQI: ${aqi}\n💨 PM2.5: ${pm25} µg/m³\n🌡️ Temp: ${temperature}°C\n\nHow can I help you stay safe today?`;
     }
 
     return (
@@ -317,7 +200,7 @@ Provide a helpful, concise response focused on health and safety.`;
                             >
                                 {messages.map((msg, i) => (
                                     <motion.div
-                                        key={i}
+                                        key={`${i}-${msg.role}`}
                                         initial={{ opacity: 0, x: msg.role === 'user' ? 10 : -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -390,4 +273,135 @@ Provide a helpful, concise response focused on health and safety.`;
             </AnimatePresence>
         </>
     )
+}
+
+// AI API Functions
+async function callPathwayAPI(context: any): Promise<string> {
+    try {
+        const response = await fetch(process.env.NEXT_PUBLIC_PATHWAY_API_URL || 'http://localhost:8001', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: context.query,
+                user_context: `User: ${context.user}, Age: ${context.age}, AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C`
+            }),
+            signal: (AbortSignal as any).timeout?.(10000) || null
+        });
+
+        if (!response.ok) throw new Error('Pathway API error');
+        const data = await response.json();
+        return data.response || data.message || getLocalResponse(context);
+    } catch (error) {
+        console.error('Pathway API failed:', error);
+        throw error;
+    }
+}
+
+async function callGeminiAPI(context: any): Promise<string> {
+    try {
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'demo';
+        const prompt = `You are AeroVital AI, an atmospheric health assistant. 
+        
+Current Conditions:
+- AQI: ${context.aqi}
+- PM2.5: ${context.pm25} µg/m³
+- Temperature: ${context.temperature}°C
+- Humidity: ${context.humidity}%
+
+User: ${context.user}, Age: ${context.age}
+Health Conditions: ${context.healthConditions.join(', ') || 'None'}
+
+User Question: ${context.query}
+
+Provide a helpful, concise response focused on health and safety.`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            }),
+            signal: (AbortSignal as any).timeout?.(15000) || null
+        });
+
+        if (!response.ok) throw new Error('Gemini API error');
+        const data = await response.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || getLocalResponse(context);
+    } catch (error) {
+        console.error('Gemini API failed:', error);
+        throw error;
+    }
+}
+
+async function callGroqAPI(context: any): Promise<string> {
+    try {
+        const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+        if (!apiKey) throw new Error('Groq API key not configured');
+
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama3-8b-8192',
+                messages: [{
+                    role: 'system',
+                    content: `You are AeroVital AI. Current AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C. User: ${context.user}, Age: ${context.age}.`
+                }, {
+                    role: 'user',
+                    content: context.query
+                }],
+                max_tokens: 300,
+                temperature: 0.7
+            }),
+            signal: (AbortSignal as any).timeout?.(10000) || null
+        });
+
+        if (!response.ok) throw new Error('Groq API error');
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content || getLocalResponse(context);
+    } catch (error) {
+        console.error('Groq API failed:', error);
+        throw error;
+    }
+}
+
+function getLocalResponse(context: any): string {
+    const { aqi, pm25, temperature, query } = context;
+    const q = query.toLowerCase();
+
+    // Health risk assessment
+    if (q.includes('safe') || q.includes('outside') || q.includes('run') || q.includes('exercise')) {
+        if (aqi > 200) {
+            return `⚠️ **UNSAFE CONDITIONS**\n\nAQI is ${aqi} (Very Unhealthy). I strongly recommend:\n• Stay indoors\n• Keep windows closed\n• Use air purifiers\n• Avoid all outdoor activities\n• Wear N95 mask if you must go out`;
+        } else if (aqi > 150) {
+            return `⚠️ **CAUTION ADVISED**\n\nAQI is ${aqi} (Unhealthy). Recommendations:\n• Limit outdoor time\n• Avoid strenuous exercise\n• Sensitive groups should stay indoors\n• Consider wearing a mask`;
+        } else if (aqi > 100) {
+            return `✅ **MODERATE CONDITIONS**\n\nAQI is ${aqi}. It's relatively safe, but:\n• Sensitive individuals should limit prolonged outdoor exertion\n• Light exercise is okay\n• Monitor for symptoms`;
+        } else {
+            return `✅ **GOOD CONDITIONS**\n\nAQI is ${aqi} - excellent! You can:\n• Exercise outdoors safely\n• Enjoy outdoor activities\n• No special precautions needed`;
+        }
+    }
+
+    // AQI information
+    if (q.includes('aqi') || q.includes('air quality')) {
+        const getStatus = (val: number) => {
+            if (val <= 50) return 'Good';
+            if (val <= 100) return 'Moderate';
+            if (val <= 150) return 'Unhealthy for Sensitive Groups';
+            if (val <= 200) return 'Unhealthy';
+            return 'Very Unhealthy';
+        };
+        return `📊 **Current Air Quality**\n\n• AQI: ${aqi}\n• PM2.5: ${pm25} µg/m³\n• Temperature: ${temperature}°C\n\nStatus: ${getStatus(aqi)}`;
+    }
+
+    // Health advice
+    if (q.includes('health') || q.includes('symptoms')) {
+        return `🏥 **Health Guidance**\n\nWith current AQI of ${aqi}:\n\n${aqi > 150 ? '• Watch for: coughing, throat irritation, breathing difficulty\n• Keep rescue medications handy\n• Consult doctor if symptoms worsen' : '• No immediate health concerns\n• Stay hydrated\n• Monitor air quality changes'}`;
+    }
+
+    // Default response
+    return `I'm your AeroVital AI assistant. Current conditions:\n\n📊 AQI: ${aqi}\n💨 PM2.5: ${pm25} µg/m³\n🌡️ Temp: ${temperature}°C\n\nHow can I help you stay safe today?`;
 }

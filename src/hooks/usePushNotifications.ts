@@ -13,7 +13,7 @@ export function usePushNotifications() {
 
     useEffect(() => {
         // Check if push notifications are supported
-        if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
+        if ('Notification' in globalThis && 'serviceWorker' in navigator && 'PushManager' in globalThis) {
             setIsSupported(true);
             setPermission(Notification.permission);
 
@@ -68,7 +68,7 @@ export function usePushNotifications() {
 
             const sub = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: convertedVapidKey
+                applicationServerKey: convertedVapidKey as any
             });
 
             setSubscription(sub);
@@ -110,7 +110,7 @@ export function usePushNotifications() {
 
         try {
             const registration = await navigator.serviceWorker.ready;
-            await registration.showNotification(title, {
+            await (registration as any).showNotification(title, {
                 body,
                 icon: '/icon-192.png',
                 badge: '/icon-192.png',
@@ -120,7 +120,7 @@ export function usePushNotifications() {
                     { action: 'view', title: 'View' },
                     { action: 'dismiss', title: 'Dismiss' }
                 ]
-            });
+            } as any);
         } catch (error) {
             console.error('Error showing notification:', error);
         }
@@ -141,14 +141,14 @@ export function usePushNotifications() {
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
-        .replace(/\-/g, '+')
-        .replace(/_/g, '/');
+        .replaceAll('-', '+')
+        .replaceAll('_', '/');
 
-    const rawData = window.atob(base64);
+    const rawData = globalThis.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
 
     for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
+        outputArray[i] = rawData.codePointAt(i) || 0;
     }
     return outputArray;
 }

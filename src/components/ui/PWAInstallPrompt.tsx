@@ -16,7 +16,7 @@ export default function PWAInstallPrompt() {
 
     useEffect(() => {
         // Check if already installed
-        if (window.matchMedia('(display-mode: standalone)').matches) {
+        if (globalThis.window.matchMedia('(display-mode: standalone)').matches) {
             setIsInstalled(true);
             return;
         }
@@ -32,16 +32,16 @@ export default function PWAInstallPrompt() {
             }, 10000);
         };
 
-        window.addEventListener('beforeinstallprompt', handler);
+        globalThis.window.addEventListener('beforeinstallprompt', handler);
 
         // Listen for successful install
-        window.addEventListener('appinstalled', () => {
+        globalThis.window.addEventListener('appinstalled', () => {
             setIsInstalled(true);
             setShowPrompt(false);
         });
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', handler);
+            globalThis.window.removeEventListener('beforeinstallprompt', handler);
         };
     }, []);
 
@@ -73,7 +73,7 @@ export default function PWAInstallPrompt() {
     useEffect(() => {
         const dismissed = localStorage.getItem('pwa-install-dismissed');
         if (dismissed) {
-            const dismissedTime = parseInt(dismissed);
+            const dismissedTime = Number.parseInt(dismissed, 10);
             const daysSince = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
             if (daysSince < 7) {
                 setShowPrompt(false);

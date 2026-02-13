@@ -4,12 +4,12 @@
  */
 
 export function registerServiceWorker() {
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    if (globalThis.window === undefined || !('serviceWorker' in navigator)) {
         console.log('Service Workers not supported');
         return;
     }
 
-    window.addEventListener('load', async () => {
+    globalThis.window.addEventListener('load', async () => {
         try {
             const registration = await navigator.serviceWorker.register('/sw.js', {
                 scope: '/'
@@ -34,7 +34,7 @@ export function registerServiceWorker() {
 
                         // Optionally show a toast notification
                         if (confirm('New version available! Reload to update?')) {
-                            window.location.reload();
+                            globalThis.window.location.reload();
                         }
                     }
                 });
@@ -47,6 +47,6 @@ export function registerServiceWorker() {
 }
 
 // Auto-register on import
-if (typeof window !== 'undefined') {
+if (globalThis.window !== undefined) {
     registerServiceWorker();
 }

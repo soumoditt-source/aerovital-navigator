@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Mic, MicOff, Volume2, X } from 'lucide-react';
+import { Mic, MicOff, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/stores/userStore';
 
@@ -9,7 +9,7 @@ interface VoiceAgentProps {
     onQuery?: (text: string) => void;
 }
 
-export default function VoiceAgent({ onQuery }: VoiceAgentProps) {
+export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [response, setResponse] = useState<string | null>(null);
@@ -19,9 +19,9 @@ export default function VoiceAgent({ onQuery }: VoiceAgentProps) {
     const [recognition, setRecognition] = useState<any>(null);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (globalThis.window !== undefined) {
             // @ts-ignore
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const SpeechRecognition = globalThis.window.SpeechRecognition || globalThis.window.webkitSpeechRecognition;
             if (SpeechRecognition) {
                 const reco = new SpeechRecognition();
                 reco.continuous = false;
@@ -33,19 +33,19 @@ export default function VoiceAgent({ onQuery }: VoiceAgentProps) {
     }, []);
 
     const speak = useCallback((text: string) => {
-        if ('speechSynthesis' in window) {
+        if ('speechSynthesis' in globalThis) {
             // Cancel any ongoing speech
-            window.speechSynthesis.cancel();
+            globalThis.speechSynthesis.cancel();
 
             const utterance = new SpeechSynthesisUtterance(text);
             // Try to find a female/pleasant voice
-            const voices = window.speechSynthesis.getVoices();
+            const voices = globalThis.speechSynthesis.getVoices();
             const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google US English'));
             if (femaleVoice) utterance.voice = femaleVoice;
 
             utterance.rate = 1;
             utterance.pitch = 1;
-            window.speechSynthesis.speak(utterance);
+            globalThis.speechSynthesis.speak(utterance);
         }
     }, []);
 
@@ -56,8 +56,10 @@ export default function VoiceAgent({ onQuery }: VoiceAgentProps) {
             setResponse(null);
             try {
                 recognition.start();
-            } catch (e) {
-                console.error("Mic already active");
+            } catch (e: any) {
+                if (e.name !== 'InvalidStateError') {
+                    console.error("Mic error:", e);
+                }
             }
         } else {
             alert("Voice recognition not supported in this browser.");
@@ -133,7 +135,7 @@ export default function VoiceAgent({ onQuery }: VoiceAgentProps) {
                     >
                         <div className="flex justify-between items-start mb-2">
                             <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">AeroVital AI</span>
-                            <button onClick={() => { setTranscript(''); setResponse(null); window.speechSynthesis.cancel(); }} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
+                            <button onClick={() => { setTranscript(''); setResponse(null); globalThis.speechSynthesis.cancel(); }} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
                         </div>
 
                         {transcript && <p className="text-sm text-slate-500 italic mb-2">"{transcript}"</p>}

@@ -29,11 +29,17 @@ export default function Dashboard() {
       setMapCenter([geo.lat, geo.lon])
     }
   }, [geo.lat, geo.lon])
-
   const handleRecenter = () => {
     if (geo.lat && geo.lon) {
       setMapCenter([geo.lat, geo.lon])
     }
+  }
+
+  let geoStatusColor = 'bg-blue-500';
+  if (geo.loading) {
+    geoStatusColor = 'bg-yellow-500 animate-pulse';
+  } else if (geo.error) {
+    geoStatusColor = 'bg-red-500';
   }
 
   const [routePoints, setRoutePoints] = useState<{ start: [number, number] | null, end: [number, number] | null }>({ start: null, end: null })
@@ -171,7 +177,7 @@ export default function Dashboard() {
 
               {/* Geo Status Indicator */}
               <div className="flex items-center gap-2 px-2 border-l border-white/10 ml-2">
-                <div className={`w-2 h-2 rounded-full ${geo.loading ? 'bg-yellow-500 animate-pulse' : geo.error ? 'bg-red-500' : 'bg-blue-500'}`} />
+                <div className={`w-2 h-2 rounded-full ${geoStatusColor}`} />
                 <span className="text-[10px] text-white/50 uppercase">{geo.loading ? 'Locating...' : 'GPS Active'}</span>
               </div>
             </div>
@@ -181,6 +187,7 @@ export default function Dashboard() {
               onEndSet={(lat, lng) => handleMapClick(lat, lng)}
               activeSelection={activeSelection}
               center={mapCenter}
+              routePoints={routePoints}
             />
 
             {/* Map Decorative overlay */}

@@ -18,7 +18,7 @@ const PRECACHE_ASSETS = [
 ];
 
 // Install event - cache core assets
-self.addEventListener('install', (event) => {
+globalThis.addEventListener('install', (event) => {
     console.log('[Service Worker] Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -26,12 +26,12 @@ self.addEventListener('install', (event) => {
                 console.log('[Service Worker] Precaching assets');
                 return cache.addAll(PRECACHE_ASSETS);
             })
-            .then(() => self.skipWaiting())
+            .then(() => globalThis.skipWaiting())
     );
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+globalThis.addEventListener('activate', (event) => {
     console.log('[Service Worker] Activating...');
     event.waitUntil(
         caches.keys().then(cacheNames => {
@@ -40,12 +40,12 @@ self.addEventListener('activate', (event) => {
                     .filter(name => name !== CACHE_NAME && name !== RUNTIME_CACHE)
                     .map(name => caches.delete(name))
             );
-        }).then(() => self.clients.claim())
+        }).then(() => globalThis.clients.claim())
     );
 });
 
 // Fetch event - network first, fallback to cache
-self.addEventListener('fetch', (event) => {
+globalThis.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
 
@@ -105,7 +105,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Push notification event
-self.addEventListener('push', (event) => {
+globalThis.addEventListener('push', (event) => {
     console.log('[Service Worker] Push received');
 
     let data = {
@@ -121,6 +121,9 @@ self.addEventListener('push', (event) => {
         try {
             data = { ...data, ...event.data.json() };
         } catch (e) {
+            if (e instanceof Error) {
+                console.warn('[Service Worker] Push data JSON parse failed:', e.message);
+            }
             data.body = event.data.text();
         }
     }
@@ -149,12 +152,12 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-        self.registration.showNotification(data.title, options)
+        globalThis.registration.showNotification(data.title, options)
     );
 });
 
 // Notification click event
-self.addEventListener('notificationclick', (event) => {
+globalThis.addEventListener('notificationclick', (event) => {
     console.log('[Service Worker] Notification clicked');
     event.notification.close();
 
@@ -165,7 +168,7 @@ self.addEventListener('notificationclick', (event) => {
     const urlToOpen = event.notification.data?.url || '/dashboard';
 
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true })
+        globalThis.clients.matchAll({ type: 'window', includeUncontrolled: true })
             .then(clientList => {
                 // Check if there's already a window open
                 for (const client of clientList) {
@@ -174,15 +177,16 @@ self.addEventListener('notificationclick', (event) => {
                     }
                 }
                 // Open new window if none exists
-                if (clients.openWindow) {
-                    return clients.openWindow(urlToOpen);
+                if (globalThis.clients.openWindow) {
+                    return globalThis.clients.openWindow(urlToOpen);
                 }
+                return null;
             })
     );
 });
 
 // Background sync for offline actions
-self.addEventListener('sync', (event) => {
+globalThis.addEventListener('sync', (event) => {
     console.log('[Service Worker] Background sync:', event.tag);
 
     if (event.tag === 'sync-health-data') {
@@ -194,11 +198,10 @@ async function syncHealthData() {
     // Sync any pending health data when connection is restored
     console.log('[Service Worker] Syncing health data...');
     // Implementation would go here
-    return Promise.resolve();
 }
 
 // Periodic background sync (for pollution spike detection)
-self.addEventListener('periodicsync', (event) => {
+globalThis.addEventListener('periodicsync', (event) => {
     if (event.tag === 'check-aqi-spike') {
         event.waitUntil(checkAQISpike());
     }
@@ -208,5 +211,4 @@ async function checkAQISpike() {
     console.log('[Service Worker] Checking for AQI spikes...');
     // This would call the API to check for pollution spikes
     // and send a push notification if detected
-    return Promise.resolve();
 }

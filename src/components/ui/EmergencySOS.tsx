@@ -67,7 +67,7 @@ Please respond immediately or call emergency services.`;
 
             // Also try to make a phone call to emergency services
             if (confirm('Call emergency services (112)?')) {
-                window.location.href = 'tel:112';
+                globalThis.window.location.href = 'tel:112';
             }
 
             setShowModal(false);
@@ -179,7 +179,7 @@ Please respond immediately or call emergency services.`;
                                 </button>
 
                                 <button
-                                    onClick={() => window.location.href = 'tel:112'}
+                                    onClick={() => globalThis.window.location.href = 'tel:112'}
                                     className="w-full bg-white/10 text-white font-bold py-3 px-6 rounded-xl hover:bg-white/20 transition-colors"
                                 >
                                     <span className="flex items-center justify-center gap-2">

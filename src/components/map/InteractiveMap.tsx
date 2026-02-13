@@ -14,8 +14,9 @@ interface InteractiveMapProps {
   onEndSet: (lat: number, lng: number) => void
   activeSelection: 'start' | 'end' | null
   center?: [number, number]
+  routePoints?: { start: [number, number] | null, end: [number, number] | null }
 }
 
-export default function InteractiveMap({ onStartSet, onEndSet, activeSelection, center }: InteractiveMapProps) {
-  return <MapInner onStartSet={onStartSet} onEndSet={onEndSet} activeSelection={activeSelection} center={center} />
+export default function InteractiveMap({ onStartSet, onEndSet, activeSelection, center, routePoints }: InteractiveMapProps) {
+  return <MapInner onStartSet={onStartSet} onEndSet={onEndSet} activeSelection={activeSelection} center={center} routePoints={routePoints} />
 }
