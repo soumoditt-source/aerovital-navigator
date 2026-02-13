@@ -65,7 +65,7 @@ export default function FitnessCoach({ aqiData }: FitnessCoachProps) {
             <div className="space-y-3">
                 <h3 className="text-white/90 font-semibold flex items-center gap-2">
                     <Timer className="text-emerald-400" size={18} />
-                    Today's Routine ({workout.durationMinutes} min)
+                    Today&apos;s Routine ({workout.durationMinutes} min)
                 </h3>
 
                 {workout.exercises.map((ex, idx) => (

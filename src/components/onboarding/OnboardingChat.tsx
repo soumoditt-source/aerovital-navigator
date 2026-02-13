@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Send, User, Bot, CheckCircle, ShieldCheck, Activity } from 'lucide-react'
 import GlassCard from '@/components/ui/GlassCard'
 import { useRouter } from 'next/navigation'

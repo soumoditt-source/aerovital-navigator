@@ -138,7 +138,7 @@ export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
                             <button onClick={() => { setTranscript(''); setResponse(null); globalThis.speechSynthesis.cancel(); }} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
                         </div>
 
-                        {transcript && <p className="text-sm text-slate-500 italic mb-2">"{transcript}"</p>}
+                        {transcript && <p className="text-sm text-slate-500 italic mb-2">&quot;{transcript}&quot;</p>}
 
                         {response && (
                             <div className="flex gap-2 items-start">

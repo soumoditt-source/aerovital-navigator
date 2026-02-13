@@ -87,7 +87,7 @@ export default function PathwayDeepBrain() {
                                 exit={{ opacity: 0, y: -10 }}
                                 className="text-sm leading-relaxed text-blue-50/90 font-medium italic relative z-10"
                             >
-                                "{insight}"
+                                &quot;{insight}&quot;
                             </motion.p>
                         </AnimatePresence>
                         {loading && (
