@@ -82,7 +82,7 @@ export function usePathwayStream(lat: number, lon: number, userProfile: any) {
         return () => {
             if (interval) clearInterval(interval)
         }
-    }, [lat, lon, setAtmosphere])
+    }, [lat, lon, setAtmosphere, userProfile])
 
     return { data, loading, error }
 }

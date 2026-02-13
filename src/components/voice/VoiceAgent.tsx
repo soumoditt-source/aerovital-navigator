@@ -73,6 +73,24 @@ export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
         }
     };
 
+    const handleProcessQuery = useCallback((query: string) => {
+        // Simple Local Intent Matching for Demo
+        const lowerQuery = query.toLowerCase();
+        let reply = "I didn't quite catch that. Could you say it again?";
+
+        if (lowerQuery.includes('safe') || lowerQuery.includes('air')) {
+            reply = `Checking your location. The air quality is currently ${Math.floor(Math.random() * 100 + 50)}. It is moderately safe to go outside.`;
+        } else if (lowerQuery.includes('run') || lowerQuery.includes('exercise') || lowerQuery.includes('workout')) {
+            reply = "Based on the PM2.5 levels, I recommend an indoor workout today. I've prepared a HIIT session for you.";
+        } else if (lowerQuery.includes('hello') || lowerQuery.includes('hi')) {
+            reply = `Hello ${user?.name || 'there'}! I am AeroVital, your atmospheric health guardian. How can I help you breathe better today?`;
+        }
+
+        setResponse(reply);
+        speak(reply);
+        if (onQuery) onQuery(query);
+    }, [user, onQuery, speak]);
+
     useEffect(() => {
         if (!recognition) return;
 
@@ -102,25 +120,7 @@ export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
             setIsListening(false);
         };
 
-    }, [recognition]);
-
-    const handleProcessQuery = (query: string) => {
-        // Simple Local Intent Matching for Demo
-        const lowerQuery = query.toLowerCase();
-        let reply = "I didn't quite catch that. Could you say it again?";
-
-        if (lowerQuery.includes('safe') || lowerQuery.includes('air')) {
-            reply = `Checking your location. The air quality is currently ${Math.floor(Math.random() * 100 + 50)}. It is moderately safe to go outside.`;
-        } else if (lowerQuery.includes('run') || lowerQuery.includes('exercise') || lowerQuery.includes('workout')) {
-            reply = "Based on the PM2.5 levels, I recommend an indoor workout today. I've prepared a HIIT session for you.";
-        } else if (lowerQuery.includes('hello') || lowerQuery.includes('hi')) {
-            reply = `Hello ${user?.name || 'there'}! I am AeroVital, your atmospheric health guardian. How can I help you breathe better today?`;
-        }
-
-        setResponse(reply);
-        speak(reply);
-        if (onQuery) onQuery(query);
-    };
+    }, [recognition, handleProcessQuery]);
 
     return (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">

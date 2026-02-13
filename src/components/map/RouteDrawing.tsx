@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Pencil, Trash2, Calculator, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -19,75 +19,7 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
     const [routeDistance, setRouteDistance] = useState<number | null>(null);
     const [isCalculating, setIsCalculating] = useState(false);
 
-    useEffect(() => {
-        if (!map) return;
-
-        // Add drawn items layer to map
-        map.addLayer(drawnItems);
-
-        // Initialize draw control
-        const drawControl = new L.Control.Draw({
-            position: 'topright',
-            draw: {
-                polyline: {
-                    shapeOptions: {
-                        color: '#3b82f6',
-                        weight: 4,
-                        opacity: 0.8
-                    },
-                    metric: true,
-                    feet: false,
-                    showLength: true
-                },
-                polygon: false,
-                circle: false,
-                rectangle: false,
-                marker: false,
-                circlemarker: false
-            },
-            edit: {
-                featureGroup: drawnItems,
-                remove: true
-            }
-        });
-
-        map.addControl(drawControl);
-
-        // Handle draw created
-        map.on(L.Draw.Event.CREATED, async (e: any) => {
-            const layer = e.layer;
-            drawnItems.addLayer(layer);
-
-            if (e.layerType === 'polyline') {
-                setIsDrawing(false);
-                await calculateRouteExposure(layer);
-            }
-        });
-
-        // Handle draw start
-        map.on(L.Draw.Event.DRAWSTART, () => {
-            setIsDrawing(true);
-        });
-
-        // Handle draw stop
-        map.on(L.Draw.Event.DRAWSTOP, () => {
-            setIsDrawing(false);
-        });
-
-        // Handle deleted
-        map.on(L.Draw.Event.DELETED, () => {
-            setRouteExposure(null);
-            setRouteDistance(null);
-            toast.success('Route cleared');
-        });
-
-        return () => {
-            map.removeControl(drawControl);
-            map.removeLayer(drawnItems);
-        };
-    }, [map, drawnItems]);
-
-    const calculateRouteExposure = async (layer: L.Polyline) => {
+    const calculateRouteExposure = useCallback(async (layer: L.Polyline) => {
         setIsCalculating(true);
         toast.loading('Calculating pollution exposure...');
 
@@ -187,7 +119,80 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
         } finally {
             setIsCalculating(false);
         }
-    };
+    }, [onRouteDrawn, drawnItems]);
+
+    useEffect(() => {
+        if (!map) return;
+
+        // Add drawn items layer to map
+        map.addLayer(drawnItems);
+
+        // Initialize draw control
+        // @ts-ignore
+        const drawControl = new L.Control.Draw({
+            position: 'topright',
+            draw: {
+                polyline: {
+                    shapeOptions: {
+                        color: '#3b82f6',
+                        weight: 4,
+                        opacity: 0.8
+                    },
+                    metric: true,
+                    feet: false,
+                    showLength: true
+                },
+                polygon: false,
+                circle: false,
+                rectangle: false,
+                marker: false,
+                circlemarker: false
+            },
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
+            }
+        });
+
+        map.addControl(drawControl);
+
+        // Handle draw created
+        // @ts-ignore
+        map.on(L.Draw.Event.CREATED, async (e: any) => {
+            const layer = e.layer;
+            drawnItems.addLayer(layer);
+
+            if (e.layerType === 'polyline') {
+                setIsDrawing(false);
+                await calculateRouteExposure(layer);
+            }
+        });
+
+        // Handle draw start
+        // @ts-ignore
+        map.on(L.Draw.Event.DRAWSTART, () => {
+            setIsDrawing(true);
+        });
+
+        // Handle draw stop
+        // @ts-ignore
+        map.on(L.Draw.Event.DRAWSTOP, () => {
+            setIsDrawing(false);
+        });
+
+        // Handle deleted
+        // @ts-ignore
+        map.on(L.Draw.Event.DELETED, () => {
+            setRouteExposure(null);
+            setRouteDistance(null);
+            toast.success('Route cleared');
+        });
+
+        return () => {
+            map.removeControl(drawControl);
+            map.removeLayer(drawnItems);
+        };
+    }, [map, drawnItems, calculateRouteExposure]);
 
     const clearRoute = () => {
         drawnItems.clearLayers();
@@ -231,8 +236,8 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
                             <div className="flex justify-between items-center">
                                 <span className="text-white/70 text-xs">Total Exposure:</span>
                                 <span className={`font-mono font-bold text-sm ${routeExposure > 500 ? 'text-red-400' :
-                                        routeExposure > 200 ? 'text-yellow-400' :
-                                            'text-green-400'
+                                    routeExposure > 200 ? 'text-yellow-400' :
+                                        'text-green-400'
                                     }`}>
                                     {routeExposure} AQI·min
                                 </span>
