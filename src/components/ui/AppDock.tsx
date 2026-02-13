@@ -3,6 +3,7 @@
 import { LayoutDashboard, Dumbbell, Newspaper, Map as MapIcon, Settings } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { useAtmosphereStore } from '@/stores/atmosphereStore'
 
 export default function AppDock() {
     const router = useRouter()
@@ -14,8 +15,22 @@ export default function AppDock() {
         { id: 'news', icon: Newspaper, label: 'Intel', path: '/news' },
     ]
 
+    const { aqi } = useAtmosphereStore()
+
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2">
+            {/* Live Status Ticker */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="px-3 py-1 bg-black/80 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-2 shadow-xl"
+            >
+                <div className={`w-1.5 h-1.5 rounded-full ${aqi > 150 ? 'bg-red-500' : 'bg-green-500'} animate-pulse`} />
+                <span className="text-[9px] font-mono text-white/50 uppercase tracking-tighter">
+                    Live Monitor: <span className="text-white font-bold">{aqi} AQI</span>
+                </span>
+            </motion.div>
+
             <div className="flex items-center gap-2 p-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-blue-900/20">
 
                 {tabs.map((tab) => {

@@ -58,7 +58,7 @@ function MetricItem({
 
 export default function MetricsPanel({ aqi, pm25, temperature, humidity }: MetricsPanelProps) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 h-full">
+    <div id="metrics-panel" className="grid grid-cols-2 lg:grid-cols-4 gap-4 h-full">
       <MetricItem
         icon={Database}
         label="Real-Time AQI"

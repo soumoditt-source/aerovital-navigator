@@ -141,7 +141,7 @@ export default function Dashboard() {
         </section>
 
         {/* SECTION 2: MAP & NAVIGATION */}
-        <section className="h-[500px] lg:h-[600px] w-full relative group rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+        <section id="live-map" className="h-[500px] lg:h-[600px] w-full relative group rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
           <GlassCard className="h-full w-full p-0 relative z-0">
             {/* Map Controls */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] flex gap-2 p-1 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 shadow-xl">
@@ -224,9 +224,6 @@ export default function Dashboard() {
         </section>
 
       </main>
-
-      {/* GLOBAL VOICE AGENT */}
-      <VoiceAgent onQuery={(t) => console.log('Voice Query:', t)} />
     </div>
   )
 }

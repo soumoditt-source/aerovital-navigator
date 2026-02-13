@@ -6,6 +6,8 @@ import { Dumbbell, Timer, Flame, ChevronRight, Play, CheckCircle } from 'lucide-
 import { useRouter } from 'next/navigation'
 import GlassCard from '@/components/ui/GlassCard' // Assuming this exists or I should mock it/import it
 import { useUserStore } from '@/stores/userStore'
+import { useAtmosphereStore } from '@/stores/atmosphereStore'
+import { AlertCircle } from 'lucide-react'
 
 // Mock Data for "Six Pack in 30 Days" Program
 const DAYS = Array.from({ length: 30 }, (_, i) => ({
@@ -25,11 +27,12 @@ const DAYS = Array.from({ length: 30 }, (_, i) => ({
 export default function FitnessPage() {
     const router = useRouter()
     const user = useUserStore(state => state.user)
+    const { aqi } = useAtmosphereStore()
     const [selectedDay, setSelectedDay] = useState<typeof DAYS[0] | null>(null)
     const [isWorkingOut, setIsWorkingOut] = useState(false)
 
     return (
-        <div className="min-h-screen bg-black text-white font-sans pb-24 overflow-y-auto">
+        <div id="fitness-roadmap" className="min-h-screen bg-black text-white font-sans pb-24 overflow-y-auto">
             {/* HEADER IMAGE */}
             <div className="relative h-64 w-full bg-[url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black" />
@@ -47,13 +50,18 @@ export default function FitnessPage() {
                     <div className="text-xs text-white/50 uppercase tracking-widest">Plan</div>
                     <div className="text-xl font-bold">30 Days</div>
                 </div>
+
+                <div className="text-center px-4 border-x border-white/10">
+                    <div className="text-xs text-white/50 uppercase tracking-widest">Atmosphere</div>
+                    <div className={`text-xl font-bold flex items-center gap-1.5 ${aqi > 150 ? 'text-red-500' : 'text-green-500'}`}>
+                        {aqi > 150 && <AlertCircle size={16} className="animate-pulse" />}
+                        {aqi} AQI
+                    </div>
+                </div>
+
                 <div className="text-center">
                     <div className="text-xs text-white/50 uppercase tracking-widest">Kcal</div>
                     <div className="text-xl font-bold flex items-center gap-1"><Flame size={16} className="text-orange-500" /> 12.4k</div>
-                </div>
-                <div className="text-center">
-                    <div className="text-xs text-white/50 uppercase tracking-widest">Left</div>
-                    <div className="text-xl font-bold">30 Days</div>
                 </div>
             </div>
 
@@ -65,8 +73,8 @@ export default function FitnessPage() {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedDay(day)}
                         className={`relative overflow-hidden rounded-2xl p-4 flex items-center justify-between cursor-pointer border ${day.completed
-                                ? 'bg-blue-900/20 border-blue-500/30'
-                                : 'bg-white/5 border-white/5 hover:bg-white/10'
+                            ? 'bg-blue-900/20 border-blue-500/30'
+                            : 'bg-white/5 border-white/5 hover:bg-white/10'
                             }`}
                     >
                         {day.completed && <div className="absolute inset-0 bg-blue-500/10 z-0" />}
@@ -88,7 +96,7 @@ export default function FitnessPage() {
                             </div>
                         </div>
 
-                        {day.category !== 'Rest Day' && (
+                        {day.title !== 'Rest Day' && (
                             <ChevronRight className="text-white/20" />
                         )}
 
