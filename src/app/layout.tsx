@@ -7,9 +7,29 @@ import AppDock from '@/components/ui/AppDock'
 import ChatAssistant from '@/components/chat/ChatAssistant'
 import TutorialManager from '@/components/ui/TutorialManager'
 import PageTransition from '@/components/ui/PageTransition'
+import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt'
+import EmergencySOS from '@/components/ui/EmergencySOS'
 
 const outfit = Outfit({ subsets: ['latin'] })
-// ... metadata ...
+
+export const metadata: Metadata = {
+  title: 'AeroVital Navigator - Atmospheric Health Protection',
+  description: 'Real-time air quality monitoring with personalized health risk assessment',
+  manifest: '/manifest.json',
+  themeColor: '#3b82f6',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'AeroVital'
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false
+  }
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -33,6 +53,8 @@ export default function RootLayout({
         <AppDock />
         <ChatAssistant />
         <TutorialManager />
+        <PWAInstallPrompt />
+        <EmergencySOS />
 
         <Toaster
           position="bottom-right"

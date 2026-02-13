@@ -6,21 +6,21 @@
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/dashboard/RiskGauges": {
-    "id": 1315,
+    "id": 2358,
     "files": [
-      "static/chunks/315.e915c0e57576608f.js"
+      "static/chunks/358.824438db15422ce7.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/dashboard/RouteCards": {
-    "id": 2627,
+    "id": 4347,
     "files": [
-      "static/chunks/627.a9907de8a21737c7.js"
+      "static/chunks/347.c70029b3957a2c68.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/dashboard/SpikeAlert": {
-    "id": 2633,
+    "id": 3618,
     "files": [
-      "static/chunks/633.84a1f1567f4bfb4b.js"
+      "static/chunks/618.e66d2bc7acbf4ad2.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/map/InteractiveMap": {
