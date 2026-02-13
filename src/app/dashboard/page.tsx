@@ -25,7 +25,7 @@ export default function Dashboard() {
   const [routePoints, setRoutePoints] = useState<{ start: [number, number] | null, end: [number, number] | null }>({ start: null, end: null })
   const [activeSelection, setActiveSelection] = useState<'start' | 'end' | null>(null)
 
-  const { data: risks, loading } = usePathwayStream(
+  const { data, loading } = usePathwayStream(
     location.lat,
     location.lon,
     {
@@ -35,6 +35,9 @@ export default function Dashboard() {
       has_metabolic: user?.medicalConditions?.metabolic
     }
   )
+
+  const risks = data?.risks
+  const readings = data?.readings
 
   const handleMapClick = (lat: number, lng: number) => {
     if (activeSelection === 'start') {
@@ -95,7 +98,12 @@ export default function Dashboard() {
 
         {/* ROW 1: METRICS (Spans Full Width) */}
         <div className="lg:col-span-12 h-32 lg:h-40">
-          <MetricsPanel aqi={152} pm25={84} temperature={28} humidity={65} />
+          <MetricsPanel
+            aqi={readings?.aqi || 152}
+            pm25={readings?.pm25 || 84}
+            temperature={readings?.temperature || 28}
+            humidity={readings?.humidity || 65}
+          />
         </div>
 
         {/* ROW 2: MAIN CONTENT */}

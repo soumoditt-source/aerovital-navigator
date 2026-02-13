@@ -42,7 +42,11 @@ export default function Onboarding() {
       },
       height: Number(formData.height),
       weight: Number(formData.weight),
-      bmi
+      bmi,
+      id: crypto.randomUUID(),
+      medications: [],
+      fitnessLevel: 'intermediate',
+      createdAt: new Date().toISOString()
     })
 
     confetti({

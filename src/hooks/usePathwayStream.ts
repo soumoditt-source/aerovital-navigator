@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { startAQIStream, getStreamingRisks } from '@/lib/api/pathwayClient'
+import { startAQIStream, getStreamingRisks, getCurrentReadings } from '@/lib/api/pathwayClient'
 
 export function usePathwayStream(lat: number, lon: number, userProfile: any) {
     const [data, setData] = useState<any>(null)
@@ -17,19 +17,31 @@ export function usePathwayStream(lat: number, lon: number, userProfile: any) {
 
                 // Poll every 60 seconds
                 interval = setInterval(async () => {
-                    const result = await getStreamingRisks(lat, lon, userProfile)
-                    if (result.success) {
-                        setData(result.risks)
-                        setLoading(false)
+                    const [riskRes, readingsRes] = await Promise.all([
+                        getStreamingRisks(lat, lon, userProfile),
+                        getCurrentReadings(lat, lon)
+                    ])
+
+                    if (riskRes.success) {
+                        setData(prev => ({ ...prev, risks: riskRes.risks }))
                     }
+                    if (readingsRes.success) {
+                        setData(prev => ({ ...prev, readings: readingsRes }))
+                    }
+                    setLoading(false)
                 }, 60000)
 
                 // Get initial data immediately
-                const result = await getStreamingRisks(lat, lon, userProfile)
-                if (result.success) {
-                    setData(result.risks)
-                    setLoading(false)
-                }
+                const [riskRes, readingsRes] = await Promise.all([
+                    getStreamingRisks(lat, lon, userProfile),
+                    getCurrentReadings(lat, lon)
+                ])
+
+                setData({
+                    risks: riskRes.success ? riskRes.risks : null,
+                    readings: readingsRes.success ? readingsRes : null
+                })
+                setLoading(false)
             } catch (err) {
                 setError(err)
                 setLoading(false)

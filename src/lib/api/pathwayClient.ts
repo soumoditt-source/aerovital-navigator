@@ -45,3 +45,14 @@ export async function detectSpike(lat: number, lon: number) {
         return { success: false, error }
     }
 }
+
+export async function getCurrentReadings(lat: number, lon: number) {
+    if (!API_URL) return { success: false, message: 'API URL not configured' }
+    try {
+        const response = await fetch(`${API_URL}/api/aqi/current?lat=${lat}&lon=${lon}`)
+        return await response.json()
+    } catch (error) {
+        console.error('Error getting readings:', error)
+        return { success: false, error }
+    }
+}
