@@ -15,6 +15,7 @@ const RouteCards = dynamic(() => import('@/components/dashboard/RouteCards'), { 
 const SpikeAlert = dynamic(() => import('@/components/dashboard/SpikeAlert'), { ssr: false })
 const InteractiveMap = dynamic(() => import('@/components/map/InteractiveMap'), { ssr: false })
 const VoiceAgent = dynamic(() => import('@/components/voice/VoiceAgent'), { ssr: false })
+import ChatAssistant from '@/components/chat/ChatAssistant'
 
 export default function Dashboard() {
   const user = useUserStore(state => state.user)
@@ -231,6 +232,9 @@ export default function Dashboard() {
         </section>
 
       </main>
+
+      <ChatAssistant />
+      <VoiceAgent />
     </div>
   )
 }
