@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
+import 'leaflet/dist/leaflet.css'
 import { Toaster } from 'react-hot-toast'
 
 import AppDock from '@/components/ui/AppDock'
