@@ -1,0 +1,7 @@
+{
+  "name": "AeroVital Navigator",
+  "description": "An advanced air quality health protection app featuring real-time tracking, AI-powered health routes, and personalized risk assessment.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

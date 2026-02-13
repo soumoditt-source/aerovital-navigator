@@ -1,0 +1,34 @@
+{
+  "app\\dashboard\\page.tsx -> @/components/dashboard/MetricsPanel": {
+    "id": 7818,
+    "files": [
+      "static/chunks/818.f739a8da1ee265f4.js"
+    ]
+  },
+  "app\\dashboard\\page.tsx -> @/components/dashboard/RiskGauges": {
+    "id": 8130,
+    "files": [
+      "static/chunks/130.f052264bd7b2ee25.js"
+    ]
+  },
+  "app\\dashboard\\page.tsx -> @/components/dashboard/RouteCards": {
+    "id": 1319,
+    "files": [
+      "static/chunks/319.6609e9ad1ab5f565.js"
+    ]
+  },
+  "app\\dashboard\\page.tsx -> @/components/map/InteractiveMap": {
+    "id": 2257,
+    "files": [
+      "static/chunks/257.d14904d694f29eaf.js"
+    ]
+  },
+  "components\\map\\InteractiveMap.tsx -> ./MapInner": {
+    "id": 8643,
+    "files": [
+      "static/css/d3e383b9ef67ddcb.css",
+      "static/chunks/d0deef33.bd75b11a952a2d3d.js",
+      "static/chunks/643.c99f52fedeaf7c23.js"
+    ]
+  }
+}
