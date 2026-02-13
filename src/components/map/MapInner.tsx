@@ -216,9 +216,33 @@ export default function MapInner({
         {polyline.length === 2 && (
           <Polyline
             positions={polyline}
-            pathOptions={{ color: '#3b82f6', weight: 6, opacity: 0.8, dashArray: '5, 10', lineCap: 'round' }}
-          />
+            pathOptions={{
+              color: '#3b82f6',
+              weight: 8,
+              opacity: 0.9,
+              dashArray: '1, 15',
+              lineCap: 'round',
+              className: 'neural-path-pulse'
+            }}
+          >
+            <Popup>
+              <div className="font-mono text-[10px] text-blue-400 font-bold uppercase tracking-tighter">
+                Neural A* Intelligence Path
+              </div>
+            </Popup>
+          </Polyline>
         )}
+        <div className="absolute bottom-6 left-6 z-[1000] glass-panel p-3 rounded-xl border border-white/10 pointer-events-none">
+          <div className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-2">Neural Intensity Index</div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#10b981]" title="Good" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" title="Moderate" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#f97316]" title="Unhealthy for Sensitive" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" title="Unhealthy" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#7f1d1d]" title="Hazardous" />
+            <span className="text-[8px] font-mono text-white/30 ml-1">CLEAN &rarr; TOXIC</span>
+          </div>
+        </div>
       </MapContainer>
     </div>
   );

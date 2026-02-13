@@ -278,30 +278,47 @@ export default function Dashboard() {
           <div className="flex flex-col gap-4">
             <SpikeAlert lat={location.lat} lon={location.lon} />
 
-            <GlassCard className="flex-1 bg-black/40 border-white/5 p-6 min-h-[400px]">
+            <GlassCard className="flex-1 bg-black/40 border-white/5 p-6 min-h-[400px] flex flex-col">
               <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-4 flex items-center gap-2">
-                <MapIcon size={16} /> Optimal Routes
+                <MapIcon size={16} /> Optimal Routes & Processing
               </h3>
-              <div className="flex-1">
-                {calculating && (
-                  <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl animate-pulse">
-                    <div className="relative mb-4">
-                      <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Shield className="text-blue-500" size={16} />
+              <div className="flex-1 flex flex-col gap-4">
+                {calculating ? (
+                  <div className="flex-1 flex flex-col gap-4">
+                    <div className="h-48 flex flex-col items-center justify-center text-center p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl animate-pulse">
+                      <div className="relative mb-4">
+                        <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Shield className="text-blue-500" size={16} />
+                        </div>
+                      </div>
+                      <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest">Running A* Weighted Intelligence...</p>
+                    </div>
+
+                    {/* Neural Log */}
+                    <div className="flex-1 bg-black/60 rounded-xl p-4 font-mono text-[9px] text-blue-400/70 border border-white/5 overflow-hidden">
+                      <div className="animate-pulse">
+                        <p>&gt; INITIALIZING HEURISTIC SAMPLES...</p>
+                        <p>&gt; FETCHING PATHWAY AQI STREAM [SUCCESS]</p>
+                        <p>&gt; ANALYZING 42 VOXEL NODES FOR PM2.5 EXPOSURE</p>
+                        <p>&gt; WEIGHTING DIJKSTRA COST FUNCTION [ETA 0.8s]</p>
+                        <p>&gt; OPTIMIZING FOR BIO-STABILITY [98.2% CONFIDENCE]</p>
+                        <p className="text-blue-300">&gt; FINALIZING SAFEST PATHWAY...</p>
                       </div>
                     </div>
-                    <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest">Running A* Weighted Intelligence...</p>
                   </div>
-                )}
-                {!calculating && routePoints.start && routePoints.end && routes.length > 0 && (
-                  <RouteCards onRouteSelect={() => { }} routes={routes} />
-                )}
-                {!calculating && !(routePoints.start && routePoints.end && routes.length > 0) && (
-                  <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/10 rounded-xl">
-                    <MapIcon className="text-white/20 mb-3" size={48} />
-                    <p className="text-sm text-white/40">Set Start & Dest, then click <span className="text-blue-400 font-bold">Nucleate</span>.</p>
-                  </div>
+                ) : (
+                  <>
+                    {!calculating && routePoints.start && routePoints.end && routes.length > 0 && (
+                      <RouteCards onRouteSelect={() => { }} routes={routes} />
+                    )}
+                    {!calculating && !(routePoints.start && routePoints.end && routes.length > 0) && (
+                      <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/10 rounded-xl">
+                        <MapIcon className="text-white/20 mb-3" size={48} />
+                        <p className="text-sm text-white/40">Set Start & Dest, then click <span className="text-blue-400 font-bold">Nucleate</span>.</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </GlassCard>
