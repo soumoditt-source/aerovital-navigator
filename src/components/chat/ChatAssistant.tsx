@@ -109,10 +109,10 @@ export default function ChatAssistant() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-24 right-6 z-[60] h-14 w-14 rounded-full bg-blue-600 text-white shadow-2xl flex items-center justify-center border border-white/20"
+                className="fixed bottom-24 right-6 sm:bottom-28 sm:right-10 z-[70] h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-blue-600 text-white shadow-2xl flex items-center justify-center border border-white/20"
             >
-                <MessageSquare size={24} />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-900 animate-pulse" />
+                <MessageSquare size={20} className="sm:w-6 sm:h-6" />
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-slate-900 animate-pulse" />
             </motion.button>
 
             <AnimatePresence>

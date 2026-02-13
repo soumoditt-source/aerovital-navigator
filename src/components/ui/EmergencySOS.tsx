@@ -94,10 +94,10 @@ Please respond immediately or call emergency services.`;
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowModal(true)}
-                className="fixed bottom-24 right-6 z-[60] h-16 w-16 rounded-full bg-red-600 text-white shadow-2xl flex items-center justify-center border-4 border-white/20 hover:bg-red-700 transition-colors"
+                className="fixed bottom-24 left-6 sm:bottom-28 sm:left-10 z-[70] h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-red-600 text-white shadow-2xl flex items-center justify-center border-4 border-white/20 hover:bg-red-700 transition-colors"
                 title="Emergency SOS"
             >
-                <AlertTriangle size={28} className="animate-pulse" />
+                <AlertTriangle size={24} className="animate-pulse sm:w-7 sm:h-7" />
             </motion.button>
 
             {/* SOS Modal */}

@@ -123,7 +123,7 @@ export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
     }, [recognition, handleProcessQuery]);
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        <div className="fixed bottom-40 right-6 sm:bottom-48 sm:right-10 z-[70] flex flex-col items-end gap-2">
 
             <AnimatePresence>
                 {(transcript || response) && (
@@ -155,7 +155,7 @@ export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
                 whileTap={{ scale: 0.95 }}
                 onClick={isListening ? handleStopListening : handleStartListening}
                 className={`
-            h-16 w-16 rounded-full shadow-2xl flex items-center justify-center backdrop-blur-sm border-2
+            h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-2xl flex items-center justify-center backdrop-blur-sm border-2
             transition-all duration-300
             ${isListening
                         ? 'bg-red-500/80 border-red-300 text-white animate-pulse'
@@ -163,7 +163,7 @@ export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
                     }
         `}
             >
-                {isListening ? <MicOff size={28} /> : <Mic size={28} />}
+                {isListening ? <MicOff size={24} className="sm:w-7 sm:h-7" /> : <Mic size={24} className="sm:w-7 sm:h-7" />}
 
                 {/* Holographic Ring Effect */}
                 {!isListening && (

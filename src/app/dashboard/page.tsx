@@ -153,23 +153,36 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <GlassCard className="flex items-center gap-4 px-6 py-2 rounded-full pointer-events-auto">
-          <div className="flex items-center gap-3 border-r border-white/10 pr-4">
-            <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden border border-white/20">
-              <User className="w-full h-full p-1 text-white/50" />
+        <div className="flex flex-col items-end gap-1">
+          <GlassCard className="flex items-center gap-4 px-6 py-2 rounded-full pointer-events-auto">
+            <div className="flex items-center gap-3 border-r border-white/10 pr-4">
+              <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden border border-white/20">
+                <User className="w-full h-full p-1 text-white/50" />
+              </div>
+              <div className="text-right">
+                <div className="text-xs font-bold text-white">{user?.name || 'Commander'}</div>
+                <div className="text-[10px] text-green-400 font-mono">ID: AV-8842</div>
+              </div>
             </div>
-            <div className="text-right">
-              <div className="text-xs font-bold text-white">{user?.name || 'Commander'}</div>
-              <div className="text-[10px] text-green-400 font-mono">ID: AV-8842</div>
+            <button className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white">
+              <Settings size={18} />
+            </button>
+            <button className="p-2 hover:bg-red-500/20 rounded-full transition-colors text-white/70 hover:text-red-400">
+              <LogOut size={18} />
+            </button>
+          </GlassCard>
+
+          <div className="flex gap-2 px-3">
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-[8px] font-mono text-blue-400 uppercase tracking-widest">Pathway: Online</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[8px] font-mono text-green-400 uppercase tracking-widest">Gemini: Linked</span>
             </div>
           </div>
-          <button className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white">
-            <Settings size={18} />
-          </button>
-          <button className="p-2 hover:bg-red-500/20 rounded-full transition-colors text-white/70 hover:text-red-400">
-            <LogOut size={18} />
-          </button>
-        </GlassCard>
+        </div>
       </header>
 
       {/* MAIN CONTENT STACK (Mobile First, Scrollable) */}
