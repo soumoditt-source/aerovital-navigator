@@ -1,52 +1,61 @@
 'use client'
-import { Dumbbell, Trees, Flame, Footprints } from 'lucide-react'
+
+import { motion } from 'framer-motion'
+import { Dumbbell, Bike, Footprints, AlertTriangle, CheckCircle } from 'lucide-react'
+import GlassCard from '../ui/GlassCard'
 
 export default function FitnessTracker() {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-lg">Fitness Tracker</h3>
-        <span className="text-sm text-gray-500">Day 15 of 30</span>
+    <GlassCard className="h-full border-white/10 bg-black/40">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Dumbbell size={18} className="text-purple-400" />
+          <h3 className="text-sm font-bold uppercase tracking-widest text-white/70">
+            Activity Recommender
+          </h3>
+        </div>
       </div>
 
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mb-6">
-        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '50%' }}></div>
-      </div>
+      <div className="space-y-4">
+        {[{
+          icon: Footprints,
+          label: 'Outdoor Run',
+          status: 'Restricted',
+          color: 'red',
+          desc: 'High PM2.5 levels detected.'
+        }, {
+          icon: Bike,
+          label: 'Cycling',
+          status: 'Moderate',
+          color: 'yellow',
+          desc: 'Use mask if duration > 30m.'
+        }, {
+          icon: Dumbbell,
+          label: 'Indoor Gym',
+          status: 'Recommended',
+          color: 'green',
+          desc: 'Optimal air quality indoors.'
+        }].map((activity, i) => (
+          <div key={i} className="group flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-white/20">
+            <div className="flex items-center gap-4">
+              <div className={`p-2 rounded-lg bg-${activity.color}-500/20 text-${activity.color}-400 group-hover:scale-110 transition-transform`}>
+                <activity.icon size={20} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white">{activity.label}</h4>
+                <p className="text-[10px] text-white/50">{activity.desc}</p>
+              </div>
+            </div>
 
-      <div className="bg-gray-50 rounded-xl p-4 mb-4">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-            <Dumbbell size={20} />
+            <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
+              ${activity.color === 'green' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                activity.color === 'red' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                  'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}>
+              {activity.status}
+            </div>
           </div>
-          <div>
-            <p className="font-bold">Indoor HIIT</p>
-            <p className="text-xs text-gray-500">Recommended (AQI High)</p>
-          </div>
-        </div>
-        <p className="text-sm text-gray-600 mb-2">20 minutes • 4 exercises</p>
+        ))}
       </div>
-
-      <div className="grid grid-cols-3 gap-2 text-center text-sm">
-        <div>
-          <Footprints className="mx-auto text-gray-400 mb-1" size={16} />
-          <p className="font-bold">7,847</p>
-          <p className="text-xs text-gray-500">Steps</p>
-        </div>
-        <div>
-          <Flame className="mx-auto text-orange-400 mb-1" size={16} />
-          <p className="font-bold">347</p>
-          <p className="text-xs text-gray-500">Cal</p>
-        </div>
-        <div>
-          <Trees className="mx-auto text-green-400 mb-1" size={16} />
-          <p className="font-bold">2</p>
-          <p className="text-xs text-gray-500">Trees</p>
-        </div>
-      </div>
-
-      <button className="w-full mt-6 bg-blue-600 text-white rounded-xl py-2 font-semibold hover:bg-blue-700 transition">
-        Start Workout
-      </button>
-    </div>
+    </GlassCard>
   )
 }

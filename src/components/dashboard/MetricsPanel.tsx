@@ -1,94 +1,91 @@
 'use client'
-import { Wind, Thermometer, Droplets, Activity, Sun, CloudRain } from 'lucide-react'
 
-interface MetricsProps {
-  aqi?: number
-  pm25?: number
-  temperature?: number
-  humidity?: number
-  windSpeed?: number
-  uvIndex?: number
+import { motion } from 'framer-motion'
+import { Wind, Activity, Droplets, Thermometer, Database } from 'lucide-react'
+import GlassCard from '../ui/GlassCard'
+
+interface MetricsPanelProps {
+  aqi: number
+  pm25: number
+  temperature: number
+  humidity: number
 }
 
-function MetricCard({
+function MetricItem({
   icon: Icon,
   label,
   value,
   unit,
-  color
+  color,
+  trend = 'stable'
 }: {
   icon: any,
   label: string,
-  value: string | number,
+  value: number | string,
   unit: string,
-  color: string
+  color: string,
+  trend?: 'up' | 'down' | 'stable'
 }) {
   return (
-    <div className={`p-4 rounded-xl ${color} bg-opacity-10 flex items-center space-x-4`}>
-      <div className={`p-3 rounded-lg ${color} text-white`}>
-        <Icon size={24} />
+    <GlassCard className="relative overflow-hidden group border border-white/5 bg-black/40 hover:bg-white/5 transition-all duration-500">
+      <div className={`absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition-opacity duration-500 text-${color}-400`}>
+        <Icon size={48} strokeWidth={1} />
       </div>
-      <div>
-        <p className="text-sm text-gray-500 font-medium">{label}</p>
-        <p className="text-2xl font-bold text-gray-900">
-          {value} <span className="text-sm text-gray-500 font-normal">{unit}</span>
-        </p>
+
+      <div className="relative z-10">
+        <div className={`flex items-center gap-2 text-${color}-400 mb-2`}>
+          <Icon size={18} />
+          <span className="text-xs font-bold uppercase tracking-widest">{label}</span>
+        </div>
+
+        <div className="flex items-end gap-2">
+          <span className="text-4xl font-black text-white font-mono tracking-tighter">
+            {value}
+          </span>
+          <span className="text-sm font-medium text-white/50 mb-1">{unit}</span>
+        </div>
+
+        <div className="mt-2 text-xs font-medium text-white/30 truncate">
+          Streaming Live Updates
+        </div>
       </div>
-    </div>
+
+      {/* Animated glow */}
+      <div className={`absolute -bottom-4 -left-4 w-24 h-24 bg-${color}-500/20 rounded-full blur-2xl group-hover:bg-${color}-500/40 transition-all duration-500`} />
+    </GlassCard>
   )
 }
 
-export default function MetricsPanel({
-  aqi = 0,
-  pm25 = 0,
-  temperature = 0,
-  humidity = 0,
-  windSpeed = 0,
-  uvIndex = 0
-}: MetricsProps) {
+export default function MetricsPanel({ aqi, pm25, temperature, humidity }: MetricsPanelProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <MetricCard
-        icon={Activity}
-        label="AQI"
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 h-full">
+      <MetricItem
+        icon={Database}
+        label="Real-Time AQI"
         value={aqi}
         unit=""
-        color={aqi > 100 ? 'bg-red-500' : 'bg-green-500'}
+        color={aqi > 100 ? "red" : "green"}
       />
-      <MetricCard
-        icon={CloudRain}
-        label="PM2.5"
+      <MetricItem
+        icon={Wind}
+        label="PM2.5 Conc."
         value={pm25}
         unit="µg/m³"
-        color="bg-purple-500"
+        color="purple"
       />
-      <MetricCard
+      <MetricItem
         icon={Thermometer}
-        label="Temp"
+        label="Temperature"
         value={temperature}
         unit="°C"
-        color="bg-orange-500"
+        color="orange"
       />
-      <MetricCard
+      <MetricItem
         icon={Droplets}
         label="Humidity"
         value={humidity}
         unit="%"
-        color="bg-blue-500"
-      />
-      <MetricCard
-        icon={Wind}
-        label="Wind"
-        value={windSpeed}
-        unit="km/h"
-        color="bg-gray-500"
-      />
-      <MetricCard
-        icon={Sun}
-        label="UV Index"
-        value={uvIndex}
-        unit=""
-        color="bg-yellow-500"
+        color="blue"
       />
     </div>
   )

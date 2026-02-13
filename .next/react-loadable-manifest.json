@@ -1,20 +1,32 @@
 {
-  "app\\dashboard\\page.tsx -> @/components/dashboard/MetricsPanel": {
-    "id": 7818,
+  "app\\dashboard\\page.tsx -> @/components/dashboard/FitnessTracker": {
+    "id": 4638,
     "files": [
-      "static/chunks/818.f739a8da1ee265f4.js"
+      "static/chunks/638.e8f6119f31b0daf5.js"
+    ]
+  },
+  "app\\dashboard\\page.tsx -> @/components/dashboard/MetricsPanel": {
+    "id": 2631,
+    "files": [
+      "static/chunks/631.4055773922369eed.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/dashboard/RiskGauges": {
-    "id": 8130,
+    "id": 1315,
     "files": [
-      "static/chunks/130.f052264bd7b2ee25.js"
+      "static/chunks/315.e915c0e57576608f.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/dashboard/RouteCards": {
-    "id": 1319,
+    "id": 2627,
     "files": [
-      "static/chunks/319.6609e9ad1ab5f565.js"
+      "static/chunks/627.a9907de8a21737c7.js"
+    ]
+  },
+  "app\\dashboard\\page.tsx -> @/components/dashboard/SpikeAlert": {
+    "id": 6827,
+    "files": [
+      "static/chunks/827.1cb769eb39af94a6.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/map/InteractiveMap": {

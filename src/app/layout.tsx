@@ -1,14 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter, Outfit } from 'next/font/google'
+import { Outfit } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 
 const outfit = Outfit({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AeroVital Navigator',
-  description: 'AI-Powered Atmospheric Health Protection',
-  manifest: '/manifest.json',
+  title: 'AeroVital Navigator v2.0',
+  description: 'Next-Gen Atmospheric Health Protection',
 }
 
 export default function RootLayout({
@@ -17,10 +16,23 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={outfit.className}>
+    <html lang="en" className="dark">
+      <body className={`${outfit.className} bg-background text-foreground min-h-screen overflow-hidden`}>
+        {/* Ambient background glow */}
+        <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-900 to-black pointer-events-none" />
+
         {children}
-        <Toaster position="bottom-right" />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: 'rgba(0, 0, 0, 0.8)',
+              color: '#fff',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+            },
+          }}
+        />
       </body>
     </html>
   )
