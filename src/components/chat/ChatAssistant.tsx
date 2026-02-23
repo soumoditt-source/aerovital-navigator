@@ -39,7 +39,7 @@ export default function ChatAssistant() {
 
     useEffect(() => {
         if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+            scrollRef.current.scrollIntoView({ behavior: 'smooth' })
         }
     }, [messages, isTyping])
 
@@ -237,6 +237,7 @@ export default function ChatAssistant() {
                                         </div>
                                     </div>
                                 )}
+                                <div ref={scrollRef} />
                             </div>
 
                             {/* Input Area */}

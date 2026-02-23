@@ -100,6 +100,38 @@ function ClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void
   return null;
 }
 
+function LocationMarker() {
+  const [position, setPosition] = useState<L.LatLng | null>(null);
+  const map = useMapEvents({
+    locationfound(e) {
+      setPosition(e.latlng);
+      map.flyTo(e.latlng, map.getZoom());
+    },
+  });
+
+  useEffect(() => {
+    map.locate();
+  }, [map]);
+
+  const useMapIcon = useMemo(() => {
+    if (globalThis.window === undefined) return null;
+    return new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
+    });
+  }, []);
+
+  return position === null || !useMapIcon ? null : (
+    <Marker position={position} icon={useMapIcon}>
+      <Popup>
+        <div className="font-mono text-[10px] uppercase font-bold text-blue-500">You are here</div>
+      </Popup>
+    </Marker>
+  );
+}
+
 interface MapInnerProps {
   readonly onStartSet: (lat: number, lng: number) => void
   readonly onEndSet: (lat: number, lng: number) => void
@@ -173,6 +205,7 @@ export default function MapInner({
         <MapResizer />
         <ViewManager center={center} />
         <ClickHandler onClick={handleMapClick} />
+        <LocationMarker />
         <HeatmapLayer aqi={aqi} center={center} />
 
         <LayersControl position="topright">
