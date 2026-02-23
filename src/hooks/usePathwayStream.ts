@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { startAQIStream, getStreamingRisks, getCurrentReadings } from '@/lib/api/pathwayClient'
 import { fetchExternalAQI } from '@/lib/api/externalAqi'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
