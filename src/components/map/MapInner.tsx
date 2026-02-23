@@ -69,7 +69,7 @@ function HeatmapLayer({ aqi, center }: { aqi: number, center: [number, number] }
         0.4: '#fbbf24', // Moderate
         0.6: '#f97316', // USG
         0.8: '#ef4444', // Unhealthy
-        1.0: '#7f1d1d'  // Hazardous
+        1: '#7f1d1d'  // Hazardous
       }
     }).addTo(map);
 
@@ -84,7 +84,7 @@ function HeatmapLayer({ aqi, center }: { aqi: number, center: [number, number] }
 function ViewManager({ center }: { center: [number, number] }) {
   const map = useMap();
   useEffect(() => {
-    if (center && center[0] && center[1]) {
+    if (center?.[0] && center?.[1]) {
       map.panTo(center, { animate: true });
     }
   }, [center, map]);
@@ -101,12 +101,12 @@ function ClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void
 }
 
 interface MapInnerProps {
-  onStartSet: (lat: number, lng: number) => void
-  onEndSet: (lat: number, lng: number) => void
-  activeSelection: 'start' | 'end' | null
-  center?: [number, number]
-  routePoints?: { start: [number, number] | null, end: [number, number] | null }
-  aqi?: number
+  readonly onStartSet: (lat: number, lng: number) => void
+  readonly onEndSet: (lat: number, lng: number) => void
+  readonly activeSelection: 'start' | 'end' | null
+  readonly center?: [number, number]
+  readonly routePoints?: { start: [number, number] | null, end: [number, number] | null }
+  readonly aqi?: number
 }
 
 export default function MapInner({
@@ -116,7 +116,7 @@ export default function MapInner({
   center = [20.5937, 78.9629],
   routePoints = { start: null, end: null },
   aqi = 0
-}: Readonly<MapInnerProps>) {
+}: MapInnerProps) {
   const [mounted, setMounted] = useState(false);
 
   const icons = useMemo(() => {

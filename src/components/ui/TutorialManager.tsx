@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronRight, Info, Play } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { X, ChevronRight, Info } from 'lucide-react'
 
 const TOUR_STEPS = [
     {
@@ -74,7 +74,7 @@ export default function TutorialManager() {
                         <Info size={20} />
                         <span className="text-xs font-bold uppercase tracking-widest font-mono">System Orientation</span>
                     </div>
-                    <button onClick={handleComplete} className="text-white/30 hover:text-white">
+                    <button title="Close Tutorial" aria-label="Close" onClick={handleComplete} className="text-white/30 hover:text-white">
                         <X size={20} />
                     </button>
                 </div>
@@ -88,9 +88,9 @@ export default function TutorialManager() {
 
                 <div className="flex items-center justify-between">
                     <div className="flex gap-1.5">
-                        {TOUR_STEPS.map((_, i) => (
+                        {TOUR_STEPS.map((step, i) => (
                             <div
-                                key={i}
+                                key={step.target}
                                 className={`h-1.5 rounded-full transition-all ${i === activeStep ? 'w-6 bg-blue-500' : 'w-1.5 bg-white/10'}`}
                             />
                         ))}

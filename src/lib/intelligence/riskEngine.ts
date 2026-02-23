@@ -1,4 +1,4 @@
-import { AQIData, HealthRisks, User } from '@/types';
+import { AQIData, User } from '@/types';
 
 export interface CalculatedRisk {
     cardiacRisk: number; // 0-100
@@ -59,11 +59,15 @@ export function calculateHealthRisk(readings: AQIData, user: User | null): Calcu
 
     // Generate Recommendations
     if (riskLevel === 'SEVERE') {
-        recommendations.push("AVOID all outdoor physical activity.");
-        recommendations.push("Wear N95/N99 mask if stepping out is unavoidable.");
+        recommendations.push(
+            "AVOID all outdoor physical activity.",
+            "Wear N95/N99 mask if stepping out is unavoidable."
+        );
     } else if (riskLevel === 'HIGH') {
-        recommendations.push("Reduce intensity of outdoor exercise.");
-        recommendations.push("Sensitive groups should stay indoors.");
+        recommendations.push(
+            "Reduce intensity of outdoor exercise.",
+            "Sensitive groups should stay indoors."
+        );
     } else if (riskLevel === 'MODERATE') {
         recommendations.push("Limit prolonged outdoor exertion.");
     }

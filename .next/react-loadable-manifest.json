@@ -20,19 +20,13 @@
   "app\\dashboard\\page.tsx -> @/components/dashboard/SpikeAlert": {
     "id": 3618,
     "files": [
-      "static/chunks/618.e89790b6ead4c6fb.js"
+      "static/chunks/618.3ca051a3a8ea788d.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/map/InteractiveMap": {
     "id": 2257,
     "files": [
       "static/chunks/257.81abd64ed057f7cd.js"
-    ]
-  },
-  "app\\dashboard\\page.tsx -> @/components/voice/VoiceAgent": {
-    "id": 6164,
-    "files": [
-      "static/chunks/164.d547f48cb7299b27.js"
     ]
   },
   "components\\chat\\ChatAssistant.tsx -> @/lib/api/pathwayClient": {
@@ -44,9 +38,9 @@
   "components\\map\\InteractiveMap.tsx -> ./MapInner": {
     "id": 6653,
     "files": [
-      "static/css/d3e383b9ef67ddcb.css",
+      "static/css/fc1c9daac70c093b.css",
       "static/chunks/d0deef33.bd75b11a952a2d3d.js",
-      "static/chunks/653.4452c01f48d398ba.js"
+      "static/chunks/653.d6fdb42feff636f9.js"
     ]
   },
   "components\\ui\\EmergencySOS.tsx -> @/lib/api/pathwayClient": {

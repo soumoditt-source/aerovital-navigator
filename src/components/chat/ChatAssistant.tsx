@@ -140,7 +140,7 @@ export default function ChatAssistant() {
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => setIsOpen(false)}
+                                        title="Close" aria-label="Close" onClick={() => setIsOpen(false)}
                                         className="p-1 hover:bg-white/10 rounded-full transition-colors"
                                     >
                                         <X size={20} />
@@ -256,7 +256,7 @@ export default function ChatAssistant() {
                                         className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
                                     />
                                     <button
-                                        onClick={handleSend}
+                                        title="Send message" aria-label="Send message" onClick={handleSend}
                                         disabled={!input.trim() || isTyping}
                                         className="absolute right-2 top-1.5 p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:hover:bg-blue-600 text-white rounded-lg transition-colors"
                                     >

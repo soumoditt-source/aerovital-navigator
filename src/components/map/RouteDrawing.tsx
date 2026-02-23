@@ -8,8 +8,8 @@ import L from 'leaflet';
 import 'leaflet-draw';
 
 interface RouteDrawingProps {
-    map: L.Map | null;
-    onRouteDrawn?: (exposure: number, distance: number) => void;
+    readonly map: L.Map | null;
+    readonly onRouteDrawn?: (exposure: number, distance: number) => void;
 }
 
 export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
@@ -17,10 +17,7 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
     const [drawnItems] = useState(new L.FeatureGroup());
     const [routeExposure, setRouteExposure] = useState<number | null>(null);
     const [routeDistance, setRouteDistance] = useState<number | null>(null);
-    const [isCalculating, setIsCalculating] = useState(false);
-
     const calculateRouteExposure = useCallback(async (layer: L.Polyline) => {
-        setIsCalculating(true);
         toast.loading('Calculating pollution exposure...');
 
         try {
@@ -86,12 +83,16 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
             // Add exposure marker at midpoint
             if (latlngs.length > 0) {
                 const midpoint = latlngs[Math.floor(latlngs.length / 2)];
+                let markerBg = '#10b981';
+                if (exposure > 500) markerBg = '#ef4444';
+                else if (exposure > 200) markerBg = '#f59e0b';
+
                 const marker = L.marker(midpoint, {
                     icon: L.divIcon({
                         className: 'exposure-marker',
                         html: `
               <div style="
-                background: ${exposure > 500 ? '#ef4444' : exposure > 200 ? '#f59e0b' : '#10b981'};
+                background: ${markerBg};
                 color: white;
                 padding: 8px 12px;
                 border-radius: 12px;
@@ -117,7 +118,7 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
             toast.dismiss();
             toast.error('Failed to calculate exposure');
         } finally {
-            setIsCalculating(false);
+            // cleanup if needed
         }
     }, [onRouteDrawn, drawnItems]);
 
@@ -201,6 +202,13 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
         toast.success('Route cleared');
     };
 
+    const getExposureColor = () => {
+        if (!routeExposure) return 'text-green-400';
+        if (routeExposure > 500) return 'text-red-400';
+        if (routeExposure > 200) return 'text-yellow-400';
+        return 'text-green-400';
+    };
+
     return (
         <div className="absolute top-20 right-4 z-[500]">
             <motion.div
@@ -235,10 +243,7 @@ export default function RouteDrawing({ map, onRouteDrawn }: RouteDrawingProps) {
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <span className="text-white/70 text-xs">Total Exposure:</span>
-                                <span className={`font-mono font-bold text-sm ${routeExposure > 500 ? 'text-red-400' :
-                                    routeExposure > 200 ? 'text-yellow-400' :
-                                        'text-green-400'
-                                    }`}>
+                                <span className={`font-mono font-bold text-sm ${getExposureColor()}`}>
                                     {routeExposure} AQI·min
                                 </span>
                             </div>

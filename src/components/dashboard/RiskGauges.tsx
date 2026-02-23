@@ -5,9 +5,9 @@ import { Heart, Activity, UserCheck, Wind } from 'lucide-react'
 import GlassCard from '../ui/GlassCard'
 
 interface RiskGaugesProps {
-  cardiacRisk: number // 1-10
-  asthmaRisk: number // 1-10
-  exerciseSafety: number // 0-100
+  readonly cardiacRisk: number // 1-10
+  readonly asthmaRisk: number // 1-10
+  readonly exerciseSafety: number // 0-100
 }
 
 function CircularGauge({ value, max, label, color, icon: Icon }: any) {

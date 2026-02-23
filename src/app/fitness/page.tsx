@@ -119,7 +119,7 @@ export default function FitnessPage() {
                                 priority
                             />
                             <div className="absolute top-0 left-0 p-6 w-full flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
-                                <button onClick={() => setSelectedDay(null)} className="p-2 bg-white/10 rounded-full backdrop-blur">
+                                <button title="Back" aria-label="Go Back" onClick={() => setSelectedDay(null)} className="p-2 bg-white/10 rounded-full backdrop-blur">
                                     <ChevronRight className="rotate-180" />
                                 </button>
                             </div>

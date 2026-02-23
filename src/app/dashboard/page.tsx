@@ -162,10 +162,10 @@ export default function Dashboard() {
                 <div className="text-[10px] text-green-400 font-mono">ID: AV-8842</div>
               </div>
             </div>
-            <button className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white">
+            <button title="Settings" aria-label="Settings" className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white">
               <Settings size={18} />
             </button>
-            <button className="p-2 hover:bg-red-500/20 rounded-full transition-colors text-white/70 hover:text-red-400">
+            <button title="Logout" aria-label="Logout" className="p-2 hover:bg-red-500/20 rounded-full transition-colors text-white/70 hover:text-red-400">
               <LogOut size={18} />
             </button>
           </GlassCard>

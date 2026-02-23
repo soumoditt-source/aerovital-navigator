@@ -1,0 +1,1 @@
+"use strict";exports.id=897,exports.ids=[897],exports.modules={897:(t,s,o)=>{o.r(s),o.d(s,{default:()=>r});let r=(0,o(8570).createProxy)(String.raw`C:\Users\Soumoditya Das\Downloads\aerovital-navigator\src\components\ui\PWAInstallPrompt.tsx#default`)}};

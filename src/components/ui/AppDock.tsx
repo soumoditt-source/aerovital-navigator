@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, Dumbbell, Newspaper, Map as MapIcon, Settings } from 'lucide-react'
+import { LayoutDashboard, Dumbbell, Newspaper, Settings } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
@@ -57,7 +57,7 @@ export default function AppDock() {
 
                 <div className="w-px h-8 bg-white/10 mx-1" />
 
-                <button className="p-3 rounded-xl hover:bg-white/10 text-white/50 hover:text-white transition-colors">
+                <button title="Settings" aria-label="Settings" className="p-3 rounded-xl hover:bg-white/10 text-white/50 hover:text-white transition-colors">
                     <Settings size={20} />
                 </button>
 

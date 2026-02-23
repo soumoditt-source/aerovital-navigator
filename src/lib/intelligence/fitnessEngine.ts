@@ -16,50 +16,60 @@ export interface Exercise {
     notes?: string;
 }
 
-export function generateWorkoutPlan(readings: AQIData, user: User | null, dayNumber: number = 1): WorkoutPlan {
-    const isHighPollution = readings.aqi > 150;
-    const isModeratePollution = readings.aqi > 100;
+function getPersonalizedIntensity(user: User | null, defaultIntensity: WorkoutPlan['intensity'], defaultType: WorkoutPlan['type'], readings: AQIData) {
+    if (!user) return { intensity: defaultIntensity, type: defaultType };
 
-    let type: WorkoutPlan['type'] = isHighPollution ? 'INDOOR' : 'OUTDOOR';
-    let intensity: WorkoutPlan['intensity'] = 'MODERATE';
+    let newIntensity = defaultIntensity;
+    let newType = defaultType;
 
-    // Basic personalization
-    if (user) {
-        if (user.fitnessLevel === 'advanced') intensity = 'HIGH';
-        if (user.fitnessLevel === 'beginner') intensity = 'LOW';
+    if (user.fitnessLevel === 'advanced') newIntensity = 'HIGH';
+    if (user.fitnessLevel === 'beginner') newIntensity = 'LOW';
 
-        // Safety overrides
-        if (user.medicalConditions.respiratory && readings.aqi > 100) {
-            type = 'INDOOR';
-            intensity = 'LOW';
-        }
-        if (user.medicalConditions.cardiovascular && readings.temperature > 35) {
-            type = 'INDOOR';
-            intensity = 'LOW';
-        }
+    if (user.medicalConditions.respiratory && readings.aqi > 100) {
+        newType = 'INDOOR';
+        newIntensity = 'LOW';
     }
+    if (user.medicalConditions.cardiovascular && readings.temperature > 35) {
+        newType = 'INDOOR';
+        newIntensity = 'LOW';
+    }
+    return { intensity: newIntensity, type: newType };
+}
 
-    // Generate Exercises based on Day & Type
+function getExercises(type: WorkoutPlan['type'], intensity: WorkoutPlan['intensity']) {
     const exercises: Exercise[] = [];
-    let duration = 30;
-    let calories = 200;
+    let duration: number;
+    let calories: number;
 
     if (type === 'INDOOR') {
-        exercises.push({ name: "Warm-up: High Knees", sets: 3, reps: "30 secs" });
-        exercises.push({ name: "Bodyweight Squats", sets: 3, reps: "15 reps" });
-        exercises.push({ name: "Push-ups (or Knee Push-ups)", sets: 3, reps: "10-12 reps" });
-        exercises.push({ name: "Plank Hold", sets: 3, reps: "30-45 secs" });
-        exercises.push({ name: "Cool-down: Child's Pose", sets: 1, reps: "2 mins" });
+        exercises.push(
+            { name: "Warm-up: High Knees", sets: 3, reps: "30 secs" },
+            { name: "Bodyweight Squats", sets: 3, reps: "15 reps" },
+            { name: "Push-ups (or Knee Push-ups)", sets: 3, reps: "10-12 reps" },
+            { name: "Plank Hold", sets: 3, reps: "30-45 secs" },
+            { name: "Cool-down: Child's Pose", sets: 1, reps: "2 mins" }
+        );
         duration = 25;
         calories = 150 * (intensity === 'HIGH' ? 1.5 : 1);
     } else {
-        // Outdoor
-        exercises.push({ name: "Brisk Walk / Jog", sets: 1, reps: "20 mins", notes: "Maintain steady pace" });
-        exercises.push({ name: "Park Bench Dips", sets: 3, reps: "10 reps" });
-        exercises.push({ name: "Lunges", sets: 3, reps: "10 per leg" });
+        exercises.push(
+            { name: "Brisk Walk / Jog", sets: 1, reps: "20 mins", notes: "Maintain steady pace" },
+            { name: "Park Bench Dips", sets: 3, reps: "10 reps" },
+            { name: "Lunges", sets: 3, reps: "10 per leg" }
+        );
         duration = 45;
         calories = 300 * (intensity === 'HIGH' ? 1.2 : 0.8);
     }
+    return { exercises, duration, calories };
+}
+
+export function generateWorkoutPlan(readings: AQIData, user: User | null, dayNumber: number = 1): WorkoutPlan {
+    const isHighPollution = readings.aqi > 150;
+    const initialType = isHighPollution ? 'INDOOR' : 'OUTDOOR';
+    const initialIntensity = 'MODERATE';
+
+    const { type, intensity } = getPersonalizedIntensity(user, initialIntensity, initialType, readings);
+    const { exercises, duration, calories } = getExercises(type, intensity);
 
     return {
         type,
@@ -75,5 +85,5 @@ export function generateWorkoutPlan(readings: AQIData, user: User | null, dayNum
 
 export function calculateTreesPlanted(completedWorkouts: number): number {
     // Gamification strategy: 1 workout = 0.1 trees (approx)
-    return parseFloat((completedWorkouts * 0.1).toFixed(1));
+    return Number.parseFloat((completedWorkouts * 0.1).toFixed(1));
 }

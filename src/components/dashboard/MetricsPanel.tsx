@@ -1,14 +1,13 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Wind, Activity, Droplets, Thermometer, Database } from 'lucide-react'
+import { Wind, Droplets, Thermometer, Database } from 'lucide-react'
 import GlassCard from '../ui/GlassCard'
 
 interface MetricsPanelProps {
-  aqi: number
-  pm25: number
-  temperature: number
-  humidity: number
+  readonly aqi: number
+  readonly pm25: number
+  readonly temperature: number
+  readonly humidity: number
 }
 
 function MetricItem({
@@ -19,12 +18,12 @@ function MetricItem({
   color,
   trend = 'stable'
 }: {
-  icon: any,
-  label: string,
-  value: number | string,
-  unit: string,
-  color: string,
-  trend?: 'up' | 'down' | 'stable'
+  readonly icon: any,
+  readonly label: string,
+  readonly value: number | string,
+  readonly unit: string,
+  readonly color: string,
+  readonly trend?: 'up' | 'down' | 'stable'
 }) {
   return (
     <GlassCard className="relative overflow-hidden group border border-white/5 bg-black/40 hover:bg-white/5 transition-all duration-500">

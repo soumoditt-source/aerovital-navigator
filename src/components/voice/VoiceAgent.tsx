@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '@/stores/userStore';
 
 interface VoiceAgentProps {
-    onQuery?: (text: string) => void;
+    readonly onQuery?: (text: string) => void;
 }
 
-export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
+export default function VoiceAgent({ onQuery }: VoiceAgentProps) {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [response, setResponse] = useState<string | null>(null);
@@ -135,7 +135,7 @@ export default function VoiceAgent({ onQuery }: Readonly<VoiceAgentProps>) {
                     >
                         <div className="flex justify-between items-start mb-2">
                             <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">AeroVital AI</span>
-                            <button onClick={() => { setTranscript(''); setResponse(null); globalThis.speechSynthesis.cancel(); }} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
+                            <button title="Close Voice Output" aria-label="Close" onClick={() => { setTranscript(''); setResponse(null); globalThis.speechSynthesis.cancel(); }} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
                         </div>
 
                         {transcript && <p className="text-sm text-slate-500 italic mb-2">&quot;{transcript}&quot;</p>}

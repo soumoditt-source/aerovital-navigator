@@ -1,6 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
-import { useState } from 'react'
+
 
 const MapInner = dynamic(() => import('./MapInner'), {
   ssr: false,
@@ -10,12 +10,12 @@ const MapInner = dynamic(() => import('./MapInner'), {
 })
 
 interface InteractiveMapProps {
-  onStartSet: (lat: number, lng: number) => void
-  onEndSet: (lat: number, lng: number) => void
-  activeSelection: 'start' | 'end' | null
-  center?: [number, number]
-  routePoints?: { start: [number, number] | null, end: [number, number] | null }
-  aqi?: number
+  readonly onStartSet: (lat: number, lng: number) => void
+  readonly onEndSet: (lat: number, lng: number) => void
+  readonly activeSelection: 'start' | 'end' | null
+  readonly center?: [number, number]
+  readonly routePoints?: { start: [number, number] | null, end: [number, number] | null }
+  readonly aqi?: number
 }
 
 export default function InteractiveMap({ onStartSet, onEndSet, activeSelection, center, routePoints, aqi }: InteractiveMapProps) {

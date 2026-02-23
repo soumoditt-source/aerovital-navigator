@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { detectSpike } from '@/lib/api/pathwayClient'
 import { AlertTriangle, X } from 'lucide-react'
 
-export default function SpikeAlert({ lat, lon }: { lat: number, lon: number }) {
+export default function SpikeAlert({ lat, lon }: { readonly lat: number, readonly lon: number }) {
     const [alert, setAlert] = useState<{ detected: boolean, severity: number } | null>(null)
 
     useEffect(() => {
@@ -42,7 +42,7 @@ export default function SpikeAlert({ lat, lon }: { lat: number, lon: number }) {
                     </div>
                     <div className="flex-1">
                         <h3 className="text-red-400 font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                            Critical Warning
+                            {'Critical Warning '}
                             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
                         </h3>
                         <p className="text-white text-xs mt-1 font-bold">
@@ -53,6 +53,7 @@ export default function SpikeAlert({ lat, lon }: { lat: number, lon: number }) {
                         </p>
                     </div>
                     <button
+                        title="Close Alert" aria-label="Close"
                         onClick={() => setAlert(null)}
                         className="text-white/40 hover:text-white transition-colors"
                     >

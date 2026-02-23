@@ -70,8 +70,8 @@ export default function OnboardingChat() {
             } as any);
 
             setTimeout(() => router.push('/dashboard'), 3000);
-        } catch (apiErr) {
-            console.error("OCR API failed", apiErr);
+        } catch (error_) {
+            console.error("OCR API failed", error_);
             toast.error("Network error during scan.");
         } finally {
             setIsScanning(false);
@@ -175,7 +175,7 @@ export default function OnboardingChat() {
                             placeholder="Type or upload document..."
                             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 transition-all font-sans"
                         />
-                        <button onClick={handleSend} className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl transition-colors">
+                        <button title="Send Message" aria-label="Send" onClick={handleSend} className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl transition-colors">
                             <Send size={20} />
                         </button>
                     </div>

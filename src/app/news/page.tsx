@@ -1,7 +1,7 @@
 'use client'
 
 import NewsFeed from '@/components/news/NewsFeed'
-import { Radio, Rss } from 'lucide-react'
+import { Radio } from 'lucide-react'
 
 export default function NewsPage() {
     return (

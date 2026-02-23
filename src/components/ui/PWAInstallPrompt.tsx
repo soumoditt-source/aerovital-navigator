@@ -94,6 +94,7 @@ export default function PWAInstallPrompt() {
                 >
                     <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 shadow-2xl border border-white/20">
                         <button
+                            title="Dismiss PWA Prompt" aria-label="Dismiss"
                             onClick={handleDismiss}
                             className="absolute top-3 right-3 p-1 hover:bg-white/10 rounded-full transition-colors"
                         >

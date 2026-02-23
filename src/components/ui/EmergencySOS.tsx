@@ -14,9 +14,7 @@ interface EmergencyContact {
 export default function EmergencySOS() {
     const [showModal, setShowModal] = useState(false);
     const [isSending, setIsSending] = useState(false);
-    const [contacts, setContacts] = useState<EmergencyContact[]>([
-        { name: 'Emergency Services', phone: '112' }
-    ]);
+    // Legacy `contacts` state removed as it is statically managed currently or unused.
     const { aqi, pm25, temperature } = useAtmosphereStore();
 
     const sendSOS = async () => {
@@ -118,6 +116,7 @@ Please respond immediately or call emergency services.`;
                             className="bg-gradient-to-br from-red-600 to-red-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20"
                         >
                             <button
+                                title="Close Modal" aria-label="Close"
                                 onClick={() => setShowModal(false)}
                                 className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors"
                                 disabled={isSending}

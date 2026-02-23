@@ -92,9 +92,12 @@ export default function PathwayDeepBrain() {
                         </AnimatePresence>
                         {loading && (
                             <div className="absolute bottom-1 right-2 flex gap-1">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="w-1 h-1 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
-                                ))}
+                                {[1, 2, 3].map(i => {
+                                    let delayClass = 'delay-300';
+                                    if (i === 1) delayClass = 'delay-100';
+                                    else if (i === 2) delayClass = 'delay-200';
+                                    return <div key={i} className={`w-1 h-1 bg-blue-400 rounded-full animate-bounce ${delayClass}`} />;
+                                })}
                             </div>
                         )}
                     </div>

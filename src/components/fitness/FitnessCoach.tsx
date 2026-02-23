@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Wind, TreePine, Timer, Flame } from 'lucide-react';
-import { Exercise, generateWorkoutPlan, WorkoutPlan, calculateTreesPlanted } from '@/lib/intelligence/fitnessEngine';
+import { generateWorkoutPlan, WorkoutPlan, calculateTreesPlanted } from '@/lib/intelligence/fitnessEngine';
 import { useUserStore } from '@/stores/userStore';
 import { AQIData } from '@/types';
 
 interface FitnessCoachProps {
-    aqiData: AQIData;
+    readonly aqiData: AQIData;
 }
 
 export default function FitnessCoach({ aqiData }: FitnessCoachProps) {
@@ -70,7 +70,7 @@ export default function FitnessCoach({ aqiData }: FitnessCoachProps) {
 
                 {workout.exercises.map((ex, idx) => (
                     <motion.div
-                        key={idx}
+                        key={`${ex.name}-${idx}`}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.1 }}

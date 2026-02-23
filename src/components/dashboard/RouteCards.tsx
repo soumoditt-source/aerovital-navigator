@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Shield, Zap, Leaf, Clock, MapPin } from 'lucide-react'
+import { Shield, Zap, Leaf, MapPin } from 'lucide-react'
 
 interface Route {
   id: string
@@ -14,8 +14,8 @@ interface Route {
 
 // In a real app these would be prop types
 interface RouteCardsProps {
-  onRouteSelect: (id: string) => void
-  routes: Route[]
+  readonly onRouteSelect: (id: string) => void
+  readonly routes: Route[]
 }
 
 export default function RouteCards({ onRouteSelect, routes }: RouteCardsProps) {

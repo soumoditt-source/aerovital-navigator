@@ -36,8 +36,8 @@ export async function POST(req: Request) {
 
         try {
             return NextResponse.json(JSON.parse(cleanJson));
-        } catch (parseErr) {
-            console.error('JSON Parse Error:', parseErr, 'Raw Text:', resultText);
+        } catch (error_) {
+            console.error('JSON Parse Error:', error_, 'Raw Text:', resultText);
             return NextResponse.json({ error: 'Data extraction failed - invalid format' }, { status: 422 });
         }
 

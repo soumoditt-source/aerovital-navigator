@@ -8,6 +8,6 @@ interface LocationStore {
 
 export const useLocationStore = create<LocationStore>((set) => ({
     lat: 28.6139, // Default Delhi
-    lon: 77.2090,
+    lon: 77.209,
     setLocation: (lat, lon) => set({ lat, lon })
 }))
