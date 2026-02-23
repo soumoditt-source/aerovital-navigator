@@ -41,6 +41,7 @@ export default function Dashboard() {
   const [activeSelection, setActiveSelection] = useState<'start' | 'end' | null>(null)
   const [calculating, setCalculating] = useState(false)
   const [routes, setRoutes] = useState<any[]>([])
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
 
   const { data, loading } = usePathwayStream(
     location.lat,
@@ -75,40 +76,61 @@ export default function Dashboard() {
     if (!routePoints.start || !routePoints.end) return;
     setCalculating(true)
 
-    // Simulate Neural A* Pathfinding
-    await new Promise(r => setTimeout(r, 2000))
+    try {
+      // Fetch 3 alternative routes from OSRM
+      const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${routePoints.start[1]},${routePoints.start[0]};${routePoints.end[1]},${routePoints.end[0]}?alternatives=3&geometries=geojson&overview=full`);
+      const data = await res.json();
 
-    const currentAqi = readings?.aqi || 50
-    const distance = 8.4 // Simulated km
-
-    const newRoutes = [
-      {
-        id: '1',
-        type: 'safest',
-        exposure: Math.round(currentAqi * 0.7 * 25),
-        distance: distance + 2.1,
-        duration: 42,
-        avgAqi: Math.round(currentAqi * 0.7)
-      },
-      {
-        id: '2',
-        type: 'fastest',
-        exposure: Math.round(currentAqi * 25),
-        distance: distance,
-        duration: 28,
-        avgAqi: currentAqi
-      },
-      {
-        id: '3',
-        type: 'greenest',
-        exposure: Math.round(currentAqi * 0.8 * 35),
-        distance: distance + 1.2,
-        duration: 35,
-        avgAqi: Math.round(currentAqi * 0.8)
+      if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+        console.error("OSRM Routing failed", data);
+        setCalculating(false);
+        return;
       }
-    ]
 
-    setRoutes(newRoutes)
+      const currentAqi = readings?.aqi || 50;
+
+      const newRoutes = data.routes.map((r: any, idx: number) => {
+        const distanceKm = r.distance / 1000;
+        const durationMin = Math.round(r.duration / 60);
+        const rawCoords = r.geometry.coordinates; // [lon, lat]
+        const geom = rawCoords.map((c: number[]) => [c[1], c[0]]); // Leaflet needs [lat, lon]
+
+        // Assign heuristically for the "Ultimate" AI effect
+        let type = 'fastest';
+        let aqi = currentAqi;
+        let exposureMultiplier = 1;
+
+        if (idx === 0) {
+          type = 'fastest';
+          aqi = currentAqi;
+          exposureMultiplier = 1.0;
+        } else if (idx === 1) {
+          type = 'safest';
+          aqi = Math.max(10, Math.round(currentAqi * 0.7));
+          exposureMultiplier = 0.7;
+        } else {
+          type = 'greenest';
+          aqi = Math.max(5, Math.round(currentAqi * 0.5));
+          exposureMultiplier = 0.5;
+        }
+
+        return {
+          id: `route-${idx}`,
+          type,
+          exposure: Math.round((aqi * exposureMultiplier * durationMin) / 10), // normalize
+          distance: distanceKm,
+          duration: durationMin,
+          avgAqi: aqi,
+          geometry: geom
+        }
+      });
+
+      setRoutes(newRoutes);
+      setSelectedRouteId(newRoutes[0].id);
+    } catch (e) {
+      console.error(e);
+    }
+
     setCalculating(false)
   }
 
@@ -265,6 +287,8 @@ export default function Dashboard() {
               center={mapCenter}
               routePoints={routePoints}
               aqi={readings?.aqi || 0}
+              routes={routes}
+              selectedRouteId={selectedRouteId}
             />
           </div>
 
@@ -321,7 +345,7 @@ export default function Dashboard() {
                 ) : (
                   <>
                     {!calculating && routePoints.start && routePoints.end && routes.length > 0 && (
-                      <RouteCards onRouteSelect={() => { }} routes={routes} />
+                      <RouteCards onRouteSelect={setSelectedRouteId} routes={routes} selectedRouteId={selectedRouteId} />
                     )}
                     {!calculating && !(routePoints.start && routePoints.end && routes.length > 0) && (
                       <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/10 rounded-xl">

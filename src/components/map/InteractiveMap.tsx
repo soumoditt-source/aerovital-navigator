@@ -16,8 +16,10 @@ interface InteractiveMapProps {
   readonly center?: [number, number]
   readonly routePoints?: { start: [number, number] | null, end: [number, number] | null }
   readonly aqi?: number
+  readonly routes?: any[]
+  readonly selectedRouteId?: string | null
 }
 
-export default function InteractiveMap({ onStartSet, onEndSet, activeSelection, center, routePoints, aqi }: InteractiveMapProps) {
-  return <MapInner onStartSet={onStartSet} onEndSet={onEndSet} activeSelection={activeSelection} center={center} routePoints={routePoints} aqi={aqi} />
+export default function InteractiveMap({ onStartSet, onEndSet, activeSelection, center, routePoints, aqi, routes, selectedRouteId }: InteractiveMapProps) {
+  return <MapInner onStartSet={onStartSet} onEndSet={onEndSet} activeSelection={activeSelection} center={center} routePoints={routePoints} aqi={aqi} routes={routes} selectedRouteId={selectedRouteId} />
 }

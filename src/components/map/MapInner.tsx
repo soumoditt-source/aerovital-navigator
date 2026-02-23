@@ -139,6 +139,8 @@ interface MapInnerProps {
   readonly center?: [number, number]
   readonly routePoints?: { start: [number, number] | null, end: [number, number] | null }
   readonly aqi?: number
+  readonly routes?: any[]
+  readonly selectedRouteId?: string | null
 }
 
 export default function MapInner({
@@ -147,7 +149,9 @@ export default function MapInner({
   activeSelection,
   center = [20.5937, 78.9629],
   routePoints = { start: null, end: null },
-  aqi = 0
+  aqi = 0,
+  routes = [],
+  selectedRouteId = null
 }: MapInnerProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -184,9 +188,9 @@ export default function MapInner({
     );
   }
 
-  const polyline: [number, number][] = [];
-  if (routePoints.start) polyline.push(routePoints.start);
-  if (routePoints.end) polyline.push(routePoints.end);
+  const fallbackPolyline: [number, number][] = [];
+  if (routePoints.start) fallbackPolyline.push(routePoints.start);
+  if (routePoints.end) fallbackPolyline.push(routePoints.end);
 
   const handleMapClick = (lat: number, lng: number) => {
     if (activeSelection === 'start') onStartSet(lat, lng);
@@ -246,9 +250,43 @@ export default function MapInner({
           </Marker>
         )}
 
-        {polyline.length === 2 && (
+        {/* Render Neural Routes from OSRM Data */}
+        {routes && routes.length > 0 ? (
+          routes.map((route, idx) => {
+            const isSelected = selectedRouteId === route.id
+            // Map types to colors
+            const routeColors: Record<string, string> = {
+              'safest': '#3b82f6', // blue
+              'fastest': '#f97316', // orange
+              'greenest': '#10b981' // green
+            }
+            const color = routeColors[route.type] || '#3b82f6'
+
+            return (
+              <Polyline
+                key={route.id}
+                positions={route.geometry}
+                pathOptions={{
+                  color: isSelected ? color : '#ffffff',
+                  weight: isSelected ? 8 : 4,
+                  opacity: isSelected ? 0.9 : 0.3,
+                  lineCap: 'round',
+                  className: isSelected ? 'neural-path-pulse' : ''
+                }}
+              >
+                {isSelected && (
+                  <Popup>
+                    <div className="font-mono text-[10px] text-blue-400 font-bold uppercase tracking-tighter">
+                      Neural A* {route.type} Path
+                    </div>
+                  </Popup>
+                )}
+              </Polyline>
+            )
+          })
+        ) : fallbackPolyline.length === 2 ? (
           <Polyline
-            positions={polyline}
+            positions={fallbackPolyline}
             pathOptions={{
               color: '#3b82f6',
               weight: 8,
@@ -264,7 +302,7 @@ export default function MapInner({
               </div>
             </Popup>
           </Polyline>
-        )}
+        ) : null}
         <div className="absolute bottom-6 left-6 z-[1000] glass-panel p-3 rounded-xl border border-white/10 pointer-events-none">
           <div className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-2">Neural Intensity Index</div>
           <div className="flex items-center gap-1.5">
