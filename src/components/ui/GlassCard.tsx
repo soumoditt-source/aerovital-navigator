@@ -4,10 +4,10 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface GlassCardProps {
-    children: React.ReactNode
-    className?: string
-    onClick?: () => void
-    hoverEffect?: boolean
+    readonly children: React.ReactNode
+    readonly className?: string
+    readonly onClick?: () => void
+    readonly hoverEffect?: boolean
 }
 
 export default function GlassCard({ children, className, onClick, hoverEffect = true }: GlassCardProps) {

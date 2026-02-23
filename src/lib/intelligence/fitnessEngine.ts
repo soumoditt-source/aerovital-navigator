@@ -16,74 +16,103 @@ export interface Exercise {
     notes?: string;
 }
 
-function getPersonalizedIntensity(user: User | null, defaultIntensity: WorkoutPlan['intensity'], defaultType: WorkoutPlan['type'], readings: AQIData) {
-    if (!user) return { intensity: defaultIntensity, type: defaultType };
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-    let newIntensity = defaultIntensity;
-    let newType = defaultType;
-
-    if (user.fitnessLevel === 'advanced') newIntensity = 'HIGH';
-    if (user.fitnessLevel === 'beginner') newIntensity = 'LOW';
-
-    if (user.medicalConditions.respiratory && readings.aqi > 100) {
-        newType = 'INDOOR';
-        newIntensity = 'LOW';
-    }
-    if (user.medicalConditions.cardiovascular && readings.temperature > 35) {
-        newType = 'INDOOR';
-        newIntensity = 'LOW';
-    }
-    return { intensity: newIntensity, type: newType };
-}
-
-function getExercises(type: WorkoutPlan['type'], intensity: WorkoutPlan['intensity']) {
-    const exercises: Exercise[] = [];
-    let duration: number;
-    let calories: number;
-
-    if (type === 'INDOOR') {
-        exercises.push(
-            { name: "Warm-up: High Knees", sets: 3, reps: "30 secs" },
-            { name: "Bodyweight Squats", sets: 3, reps: "15 reps" },
-            { name: "Push-ups (or Knee Push-ups)", sets: 3, reps: "10-12 reps" },
-            { name: "Plank Hold", sets: 3, reps: "30-45 secs" },
-            { name: "Cool-down: Child's Pose", sets: 1, reps: "2 mins" }
-        );
-        duration = 25;
-        calories = 150 * (intensity === 'HIGH' ? 1.5 : 1);
-    } else {
-        exercises.push(
-            { name: "Brisk Walk / Jog", sets: 1, reps: "20 mins", notes: "Maintain steady pace" },
-            { name: "Park Bench Dips", sets: 3, reps: "10 reps" },
-            { name: "Lunges", sets: 3, reps: "10 per leg" }
-        );
-        duration = 45;
-        calories = 300 * (intensity === 'HIGH' ? 1.2 : 0.8);
-    }
-    return { exercises, duration, calories };
-}
-
-export function generateWorkoutPlan(readings: AQIData, user: User | null, dayNumber: number = 1): WorkoutPlan {
-    const isHighPollution = readings.aqi > 150;
-    const initialType = isHighPollution ? 'INDOOR' : 'OUTDOOR';
-    const initialIntensity = 'MODERATE';
-
-    const { type, intensity } = getPersonalizedIntensity(user, initialIntensity, initialType, readings);
-    const { exercises, duration, calories } = getExercises(type, intensity);
-
-    return {
-        type,
-        intensity,
-        exercises,
-        durationMinutes: duration,
-        caloriesEstimate: Math.round(calories),
-        advice: type === 'INDOOR'
-            ? `AQI is ${readings.aqi}. It's unsafe for outdoor exercise. We've switched you to an Indoor Home Workout.`
-            : `Air quality is acceptable (${readings.aqi}). Enjoy your outdoor session!`
-    };
-}
+// Initialize Gemini API
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export function calculateTreesPlanted(completedWorkouts: number): number {
-    // Gamification strategy: 1 workout = 0.1 trees (approx)
     return Number.parseFloat((completedWorkouts * 0.1).toFixed(1));
 }
+
+export async function generateWorkoutPlan(readings: AQIData, user: User | null, dayNumber: number = 1): Promise<WorkoutPlan> {
+
+    // Fallback static plan if NO API KEY is present
+    if (!apiKey) {
+        console.warn("Gemini API Key missing, falling back to basic engine.");
+        const isHighPollution = readings.aqi > 150;
+        return {
+            type: isHighPollution ? 'INDOOR' : 'OUTDOOR',
+            intensity: 'MODERATE',
+            exercises: [
+                { name: "Jumping Jacks", sets: 3, reps: "20 reps" },
+                { name: "Push-ups", sets: 3, reps: "10-15 reps" },
+                { name: "Core Planks", sets: 3, reps: "45 secs" }
+            ],
+            durationMinutes: 30,
+            caloriesEstimate: 250,
+            advice: "Basic fallback routine loaded. API Key required for ultimate personalization."
+        };
+    }
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+        const userContext = user ? `
+        Age: ${user.age}
+        Fitness Level: ${user.fitnessLevel}
+        Vulnerabilities: 
+        - Cardiovascular: ${user.medicalConditions.cardiovascular}
+        - Respiratory (Asthma/COPD): ${user.medicalConditions.respiratory}
+        - Metabolic: ${user.medicalConditions.metabolic}
+        ` : "Standard adult user, no specific conditions known.";
+
+        const prompt = `
+        You are the AeroVital Ultimate AI Fitness Coach. 
+        Analyze the exact environmental conditions to dictate whether a workout should be INDOOR, OUTDOOR, or REST (due to extreme danger).
+        
+        Current Environmental Data:
+        - AQI (Pollution): ${readings.aqi}
+        - PM2.5: ${readings.pm25} µg/m³
+        - Temperature: ${readings.temperature}°C
+        - Humidity: ${readings.humidity}%
+        
+        User Medical Profile:
+        ${userContext}
+        
+        Generate a highly personalized ${dayNumber > 1 ? `Day ${dayNumber}` : 'daily'} workout plan.
+        If AQI > 100 and user has Respiratory issues, MUST be INDOOR.
+        If Temp > 35C and user has Cardiovascular, MUST be INDOOR.
+        If AQI > 300, consider REST or very LOW intensity indoor stretch.
+
+        Respond ONLY with a valid JSON object matching this exact structure, nothing else:
+        {
+          "type": "INDOOR" | "OUTDOOR" | "REST",
+          "intensity": "LOW" | "MODERATE" | "HIGH",
+          "exercises": [
+            { "name": "string", "sets": number, "reps": "string", "notes": "optional string" }
+          ],
+          "durationMinutes": number,
+          "caloriesEstimate": number,
+          "advice": "A short, encouraging 2-sentence explanation of why you chose this exact routine based on their health and the current pollution/weather."
+        }`;
+
+        const result = await model.generateContent(prompt);
+        let text = result.response.text();
+
+        // Clean markdown JSON formatting if present
+        text = text.replaceAll('```json', '').replaceAll('```', '').trim();
+
+        const plan: WorkoutPlan = JSON.parse(text);
+        return plan;
+
+    } catch (error) {
+        console.error("AI Fitness Engine Error:", error);
+
+        // Failsafe recovery plan
+        return {
+            type: 'INDOOR',
+            intensity: 'LOW',
+            exercises: [
+                { name: "Deep Breathing Yoga", sets: 1, reps: "10 mins" },
+                { name: "Light Stretching", sets: 1, reps: "10 mins" }
+            ],
+            durationMinutes: 20,
+            caloriesEstimate: 80,
+            advice: "We experienced an intelligence drop. Given current AQI, we defaulted to a safe indoor recovery routine."
+        };
+    }
+}
+
+

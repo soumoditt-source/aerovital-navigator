@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Newspaper, ExternalLink, ShieldAlert } from 'lucide-react'
+import { ExternalLink, ShieldAlert } from 'lucide-react'
 
 // GDELT API returns data in this shape
 interface GDELTArticle {
@@ -29,7 +29,7 @@ export default function NewsFeed() {
             const res = await fetch('https://api.gdeltproject.org/api/v2/doc/doc?query=(environment OR pollution OR climate OR emissions)&mode=artlist&maxrecords=10&format=json');
             const data = await res.json();
 
-            if (data && data.articles) {
+            if (data?.articles) {
                 // Filter out articles with no title or URL, take top 5
                 const validArticles = data.articles
                     .filter((a: any) => a.title && a.url)
@@ -54,11 +54,11 @@ export default function NewsFeed() {
     const formatTime = (seendate: string) => {
         try {
             // parsing YYYYMMDDTHHMMSSZ
-            const year = parseInt(seendate.substring(0, 4));
-            const month = parseInt(seendate.substring(4, 6)) - 1;
-            const day = parseInt(seendate.substring(6, 8));
-            const hour = parseInt(seendate.substring(9, 11));
-            const minute = parseInt(seendate.substring(11, 13));
+            const year = Number.parseInt(seendate.substring(0, 4));
+            const month = Number.parseInt(seendate.substring(4, 6)) - 1;
+            const day = Number.parseInt(seendate.substring(6, 8));
+            const hour = Number.parseInt(seendate.substring(9, 11));
+            const minute = Number.parseInt(seendate.substring(11, 13));
 
             const date = new Date(Date.UTC(year, month, day, hour, minute));
             const now = new Date();
