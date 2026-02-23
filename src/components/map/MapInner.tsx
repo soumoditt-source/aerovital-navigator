@@ -32,7 +32,6 @@ function MapResizer() {
     triggers.forEach(delay => {
       setTimeout(() => {
         map.invalidateSize();
-        if (globalThis.window) globalThis.window.dispatchEvent(new Event('resize'));
       }, delay);
     });
   }, [map]);

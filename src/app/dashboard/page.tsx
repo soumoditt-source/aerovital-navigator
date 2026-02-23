@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useUserStore } from '@/stores/userStore'
 import { usePathwayStream } from '@/hooks/usePathwayStream'
@@ -43,15 +43,22 @@ export default function Dashboard() {
   const [routes, setRoutes] = useState<any[]>([])
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
 
+  const userProfileMemo = React.useMemo(() => ({
+    age: user?.age,
+    has_cardiovascular: user?.medicalConditions?.cardiovascular,
+    has_respiratory: user?.medicalConditions?.respiratory,
+    has_metabolic: user?.medicalConditions?.metabolic
+  }), [
+    user?.age,
+    user?.medicalConditions?.cardiovascular,
+    user?.medicalConditions?.respiratory,
+    user?.medicalConditions?.metabolic
+  ]);
+
   const { data, loading } = usePathwayStream(
     location.lat,
     location.lon,
-    {
-      age: user?.age,
-      has_cardiovascular: user?.medicalConditions?.cardiovascular,
-      has_respiratory: user?.medicalConditions?.respiratory,
-      has_metabolic: user?.medicalConditions?.metabolic
-    }
+    userProfileMemo
   )
 
   const readings = data?.readings
@@ -96,14 +103,14 @@ export default function Dashboard() {
         const geom = rawCoords.map((c: number[]) => [c[1], c[0]]); // Leaflet needs [lat, lon]
 
         // Assign heuristically for the "Ultimate" AI effect
-        let type = 'fastest';
-        let aqi = currentAqi;
-        let exposureMultiplier = 1;
+        let type: 'fastest' | 'safest' | 'greenest';
+        let aqi: number;
+        let exposureMultiplier: number;
 
         if (idx === 0) {
           type = 'fastest';
           aqi = currentAqi;
-          exposureMultiplier = 1.0;
+          exposureMultiplier = 1;
         } else if (idx === 1) {
           type = 'safest';
           aqi = Math.max(10, Math.round(currentAqi * 0.7));
