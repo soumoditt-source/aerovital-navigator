@@ -119,6 +119,32 @@ export default function OnboardingChat() {
         }, 1200)
     }
 
+    const handleGuestLogin = () => {
+        setIsScanning(true);
+        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: "Skip Login (Continue as Guest)" }]);
+
+        setTimeout(() => {
+            setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: "Guest Protocol Engaged. Routing to Dashboard without persistent profile..." }]);
+
+            setUser({
+                name: "Guest Explorer",
+                age: 30,
+                weight: 75,
+                height: 170,
+                fitnessLevel: "Intermediate",
+                medicalConditions: {
+                    asthma: false,
+                    diabetes: false,
+                    hypertension: false,
+                    cardiovascular: false,
+                    specificConditions: []
+                }
+            } as any);
+
+            setTimeout(() => router.push('/dashboard'), 1500);
+        }, 1000);
+    }
+
     return (
         <div className="flex flex-col h-screen max-w-4xl mx-auto p-4 md:p-8 relative z-10">
             <div className="absolute top-1/2 right-0 -translate-y-1/2 w-full md:w-1/2 h-full opacity-10 pointer-events-none z-0">
@@ -160,7 +186,7 @@ export default function OnboardingChat() {
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="p-4 border-t border-white/10 bg-black/20">
+                <div className="p-4 border-t border-white/10 bg-black/20 flex flex-col gap-3">
                     <div className="flex gap-2">
                         <input type="file" hidden ref={fileInputRef} onChange={handleFileUpload} accept="image/*,application/pdf" />
                         <button onClick={() => fileInputRef.current?.click()} className="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-colors text-blue-400 group relative">
@@ -179,6 +205,14 @@ export default function OnboardingChat() {
                             <Send size={20} />
                         </button>
                     </div>
+
+                    <button
+                        onClick={handleGuestLogin}
+                        disabled={isScanning || isTyping}
+                        className="w-full text-[11px] uppercase tracking-wider text-white/40 hover:text-white transition-colors py-2 border border-white/5 rounded-xl hover:bg-white/5 disabled:opacity-50"
+                    >
+                        Continue without logging in (Guest Mode)
+                    </button>
                 </div>
             </GlassCard>
             <div className="mt-2 flex justify-center gap-6 text-[10px] text-white/30 font-mono">
