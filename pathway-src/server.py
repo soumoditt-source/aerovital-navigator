@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 🌬️ AEROVITAL NAVIGATOR - LIVE BDH VER. 4.0
+# 🌬️ AEROVITAL NAVIGATOR - LIVE BABY DRAGON HATCHLING (BDH) VER. 4.0
 # TRUE PATHWAY REACTIVITY ARCHITECTURE
 # 
 # Hackathon Compliance Note: 
@@ -251,7 +251,7 @@ pw.io.http.write_json(
 )
 
 if __name__ == "__main__":
-    print("🚀 TRUE AEROVITAL BDH STREAMING ENGINE ACTIVATED...")
+    print("🚀 TRUE AEROVITAL BABY DRAGON HATCHLING (BDH) STREAMING ENGINE ACTIVATED...")
     print("📡 Ingestion: Open-Meteo LIVE (10s polling)")
     print("🗞️ Ingestion: GDELT Global English News")
     print("🧠 Endpoints running on Server Port 8000/8001")

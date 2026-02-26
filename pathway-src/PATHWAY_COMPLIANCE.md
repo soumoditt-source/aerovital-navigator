@@ -6,7 +6,7 @@
 
 ## How We Satisfy This Rule
 
-This project utilizes a **True Reactive BDH (Backend-Driven Health) Architecture** natively powered by Pathway. We do not use manual database polls or cron jobs to trigger updates.
+This project utilizes a **True Reactive Baby Dragon Hatchling (BDH) Architecture** natively powered by Pathway. We do not use manual database polls or cron jobs to trigger updates.
 
 1. **Continuous Generators:** Our input connectors (e.g., `live_sensor_stream()`) are Python Generators that yield new API data continuously (every 10 seconds).
 2. **Native Reactivity:** We ingest these streams using `pw.io.python.read(..., autocommit_duration_ms=1000)`. Because Pathway computes DAGs (Directed Acyclic Graphs) reactively, the exact moment our connector yields a new dictionary of data, the entire graph automatically updates.

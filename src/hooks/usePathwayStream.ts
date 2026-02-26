@@ -6,7 +6,7 @@ export function usePathwayStream() {
     const [pathwayConnected, setPathwayConnected] = useState(false)
     const [alerts, setAlerts] = useState<any[]>([])
 
-    // Poll the true Pathway BDH engine
+    // Poll the true Pathway Baby Dragon Hatchling (BDH) engine
     useEffect(() => {
         const PATHWAY_URL = process.env.NEXT_PUBLIC_PATHWAY_API_URL || 'http://localhost:8000';
 

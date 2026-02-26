@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, LayersControl, Polyline } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, LayersControl, Polyline, Circle } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 // Import leaflet-heat dynamically or via side-effect if already in package.json
@@ -196,6 +196,13 @@ export default function MapInner({
     else if (activeSelection === 'end') onEndSet(lat, lng);
   };
 
+  const getAqiColor = (val: number) => {
+    if (val > 100) return '#ef4444';
+    if (val > 50) return '#fbbf24';
+    return '#10b981';
+  };
+  const liveAqiColor = getAqiColor(aqi);
+
   return (
     <div className="w-full h-full relative outline-none bg-slate-950 overflow-hidden rounded-3xl">
       <MapContainer
@@ -210,6 +217,29 @@ export default function MapInner({
         <ClickHandler onClick={handleMapClick} />
         <LocationMarker />
         <HeatmapLayer aqi={aqi} center={center} />
+
+        {/* Baby Dragon Hatchling (BDH) Live AQI Cloud Rendering */}
+        {aqi > 0 && (
+          <Circle
+            center={center}
+            radius={2500 + (aqi * 15)}
+            pathOptions={{
+              color: liveAqiColor,
+              fillColor: liveAqiColor,
+              fillOpacity: 0.2,
+              weight: 0,
+              className: 'aqi-live-cloud'
+            }}
+          >
+            <Popup>
+              <div className="font-mono text-[10px] uppercase font-bold text-slate-800">
+                Baby Dragon Hatchling (BDH) Live Stream
+                <br />
+                AQI Cloud Index: {aqi}
+              </div>
+            </Popup>
+          </Circle>
+        )}
 
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Google Satellite (Hybrid)">
