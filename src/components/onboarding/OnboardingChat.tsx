@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, User, Bot, CheckCircle, ShieldCheck, Activity } from 'lucide-react'
+import { Send, User, Bot, CheckCircle, ShieldCheck, Activity, Camera } from 'lucide-react'
 import Image from 'next/image'
 import GlassCard from '@/components/ui/GlassCard'
 import { useRouter } from 'next/navigation'
@@ -189,8 +189,8 @@ export default function OnboardingChat() {
                 <div className="p-4 border-t border-white/10 bg-black/20 flex flex-col gap-3">
                     <div className="flex gap-2">
                         <input type="file" hidden ref={fileInputRef} onChange={handleFileUpload} accept="image/*,application/pdf" />
-                        <button onClick={() => fileInputRef.current?.click()} className="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-colors text-blue-400 group relative">
-                            <ShieldCheck size={20} />
+                        <button title="Upload Report or Take Photo" onClick={() => fileInputRef.current?.click()} className="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-colors text-blue-400 group relative">
+                            <Camera size={20} />
                             {isScanning && <div className="absolute inset-0 bg-blue-500/20 animate-ping rounded-xl" />}
                         </button>
                         <input
