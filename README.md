@@ -108,7 +108,8 @@ The project strictly follows the Next.js App Router paradigm, ensuring clean sep
     ```
 
 4.  **True Pathway BDH Engine (Strict Hackathon Compliance)**:
-    To run the authentic Pathway streaming backend alongside the frontend (enables live Open-Meteo polling and native RAG):
+    To run the authentic Pathway streaming backend alongside the frontend 
+    (enables live Open-Meteo polling and native RAG):
     ```bash
     cd pathway-src
     python server.py
