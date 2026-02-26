@@ -160,23 +160,58 @@ query_stream = pw.io.http.read(
     autocommit_duration_ms=100
 )
 
+# Deep Research Prompt Generator Node (Post-Transformer LLM Integration)
+def generate_deep_research_rag(query: str, aqi: float, temp: float, context: str, lang: str) -> str:
+    # Pathway allows native function mappings inside its DAG mapping.
+    # This invokes a true Gemini Post-Transformer prompt using real-time aggregated states.
+    api_key = os.environ.get("NEXT_PUBLIC_GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
+    
+    if not api_key or api_key == "demo":
+        # Fallback simulator if no API key is piped into the generic Pathway Environment
+        return f"PATHWAY RAG INTELLIGENCE: Local Global AQI average is {aqi:.1f}, Temperature is {temp:.1f}°C. You asked: {query}."
+        
+    prompt = f"""
+    You are AeroVital Pathway-RAG, an advanced environmental AI researcher.
+    
+    LIVE TELEMETRY (Automatically Updated via Pathway Streaming Engine):
+    - Global AQI Average Tracking: {aqi:.1f}
+    - Global Temperature Average: {temp:.1f}°C
+    - User Context: {context}
+    
+    USER QUERY: {query}
+    LANGUAGE REQUIREMENT: {lang}
+    
+    INSTRUCTIONS:
+    Provide a highly detailed, deeply researched answer addressing this query based on real atmospheric science. 
+    Use the live telemetry context above to ground your response and prevent hallucination.
+    Respond natively in the requested LANGUAGE REQUIREMENT. Use markdown for readability.
+    """
+    
+    try:
+        res = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={api_key}",
+            json={"contents": [{"parts": [{"text": prompt}]}]},
+            timeout=10
+        )
+        if res.status_code == 200:
+            data = res.json()
+            return data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No response generated")
+        return f"Pathway LLM Node Warning: Upstream API returned status {res.status_code}"
+    except Exception as e:
+        return f"Pathway LLM Node Error (Check Network): {str(e)}"
+
 # RAG Integration - Cross referencing incoming query with Live Windowed Stats
-# In an enterprise app, we'd use pw.xpacks.llm.embedders to vector search news_stream against query.
+# We map the python function reactively across the table stream using Pathway Apply.
 response_stream = query_stream.select(
     query=pw.this.query,
     language=pw.this.language,
-    # Creating a dynamic prompt to send back to the frontend to pipe into Gemini for translation
-    response=pw.apply.string_concat(
-        "LIVE PATHWAY ANALYSIS: Current Global AQI Average Tracking at ",
-        pw.cast(str, windowed_stats.ix_ref().aqi_avg),
-        ". Temperature: ",
-        pw.cast(str, windowed_stats.ix_ref().temp_avg),
-        "C. Health Recommendation: ",
-        pw.if_else(
-            windowed_stats.ix_ref().aqi_avg > 100,
-            "Avoid intense outdoor cardio today.",
-            "Conditions are safe."
-        )
+    response=pw.apply(
+        generate_deep_research_rag,
+        pw.this.query,
+        windowed_stats.ix_ref().aqi_avg,
+        windowed_stats.ix_ref().temp_avg,
+        pw.this.user_context,
+        pw.this.language
     )
 )
 

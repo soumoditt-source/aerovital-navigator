@@ -26,7 +26,7 @@ export default function NewsFeed() {
     const [isThinking, setIsThinking] = useState(false)
     const { user } = useUserStore()
     const { aqi, temperature } = useAtmosphereStore()
-    const { getLanguagePrompt } = useLanguageStore()
+    const { language, getLanguagePrompt } = useLanguageStore()
 
     const fetchNews = async () => {
         try {
@@ -84,7 +84,7 @@ export default function NewsFeed() {
         const interval = setInterval(fetchNews, 5 * 60 * 1000);
         return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [language, getLanguagePrompt]);
 
     const formatTime = (seendate: string) => {
         try {

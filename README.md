@@ -1,10 +1,21 @@
-# 🌬️ AeroVital Navigator v3.2 ULTIMATE - AI-Powered Atmospheric Health Protection
+<div align="center">
+  <img src="public/logo.png" alt="AeroVital Navigator Logo" width="120" />
+  <h1>🌬️ AeroVital Navigator: Powered by Pathway</h1>
+  <p><strong>A True Pathway Reactive BDH Platform with Deep Research RAG & Neural Routing</strong></p>
+  
+  [![Pathway Streaming](https://img.shields.io/badge/Architecture-Pathway_Reactive_Stream-0054a6.svg)](https://pathway.com)
+  [![Deep Research RAG](https://img.shields.io/badge/AI-Deep_Research_RAG-blueviolet.svg)](#)
+  [![Vercel](https://img.shields.io/badge/Deployed-Vercel-black.svg)](#)
+</div>
 
-> **Built by Soumoditya Das (`soumoditt@gmail.com`)**
+## 🧬 Core Architecture: True Pathway Streaming
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black) ![React](https://img.shields.io/badge/React-18.3-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC) ![Pathway](https://img.shields.io/badge/Backend-Pathway-orange) ![Gemini](https://img.shields.io/badge/AI-Gemini%201.5%20Pro-blue) ![PWA](https://img.shields.io/badge/PWA-Ready-green) ![Status](https://img.shields.io/badge/Status-Vulnerability%20Free-green) ![License](https://img.shields.io/badge/License-MIT-green)
+**AeroVital Navigator** is not a standard web application; it is built on a **Strict Pathway Streaming Architecture**. It rigorously adheres to the principle that data must *react automatically* when new external telemetry arrives, mapping Continuous IoT Atmospheric Data directly to Next.js without databases or manual polling.
 
-**AeroVital Navigator** is a cutting-edge, production-ready Progressive Web App (PWA) for real-time atmospheric health protection. It combines live AQI streams with personalized health profiles, multi-modal AI assistance, and emergency response features.
+- **Continuous Python Generators:** Natively connects to real-time global weather and AQI parameters.
+- **Asynchronous Deep Research RAG:** Integrates Gemini's Post-Transformer architecture directly into the Pathway DAG using `pw.apply()`, enabling instantaneous context-aware Deep Research responses.
+- **Sliding Window Math:** Computes real-time Live Global Spikes globally.
+- **Multi-Language RAG Support:** Chat intelligently answers any deep-research health query dynamically translated to regional languages.
 
 ---
 

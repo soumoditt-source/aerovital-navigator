@@ -42,12 +42,15 @@ export default function ChatAssistant() {
     const { language, setLanguage, getLanguagePrompt } = useLanguageStore()
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
     }
 
+    // Only scroll to bottom when a NEW message is added or when opened
     useEffect(() => {
-        scrollToBottom()
-    }, [messages, isTyping, isOpen])
+        scrollToBottom();
+    }, [messages.length, isOpen]);
 
     const handleSend = async () => {
         if (!input.trim()) return
@@ -146,12 +149,20 @@ export default function ChatAssistant() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button
-                                        title="Close" aria-label="Close" onClick={() => setIsOpen(false)}
-                                        className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                                    >
-                                        <X size={20} />
-                                    </button>
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            title="Minimize" aria-label="Minimize" onClick={() => setIsOpen(false)}
+                                            className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                                        >
+                                            <ChevronDown size={20} />
+                                        </button>
+                                        <button
+                                            title="Close" aria-label="Close" onClick={() => setIsOpen(false)}
+                                            className="p-1 hover:bg-red-500/20 text-red-400 rounded-full transition-colors"
+                                        >
+                                            <X size={20} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Selectors */}
