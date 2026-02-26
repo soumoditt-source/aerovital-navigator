@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useUserStore } from '@/stores/userStore'
+import { useAtmosphereStore } from '@/stores/atmosphereStore'
 import { usePathwayStream } from '@/hooks/usePathwayStream'
 import { User, Map as MapIcon, Settings, LogOut, LocateFixed, Shield } from 'lucide-react'
 import GlassCard from '@/components/ui/GlassCard'
@@ -43,25 +44,9 @@ export default function Dashboard() {
   const [routes, setRoutes] = useState<any[]>([])
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
 
-  const userProfileMemo = React.useMemo(() => ({
-    age: user?.age,
-    has_cardiovascular: user?.medicalConditions?.cardiovascular,
-    has_respiratory: user?.medicalConditions?.respiratory,
-    has_metabolic: user?.medicalConditions?.metabolic
-  }), [
-    user?.age,
-    user?.medicalConditions?.cardiovascular,
-    user?.medicalConditions?.respiratory,
-    user?.medicalConditions?.metabolic
-  ]);
-
-  const { data, loading } = usePathwayStream(
-    location.lat,
-    location.lon,
-    userProfileMemo
-  )
-
-  const readings = data?.readings
+  const { pathwayConnected } = usePathwayStream();
+  const { aqi, pm25, temperature, humidity } = useAtmosphereStore();
+  const loading = !pathwayConnected;
 
   const handleRecenter = () => {
     if (geo.lat && geo.lon) {
@@ -94,7 +79,7 @@ export default function Dashboard() {
         return;
       }
 
-      const currentAqi = readings?.aqi || 50;
+      const currentAqi = aqi || 50;
 
       const newRoutes = data.routes.map((r: any, idx: number) => {
         const distanceKm = r.distance / 1000;
@@ -142,10 +127,10 @@ export default function Dashboard() {
   }
 
   const readingsPayload = {
-    aqi: readings?.aqi || 0,
-    pm25: readings?.pm25 || 0,
-    temperature: readings?.temperature || 0,
-    humidity: readings?.humidity || 0,
+    aqi: aqi || 0,
+    pm25: pm25 || 0,
+    temperature: temperature || 0,
+    humidity: humidity || 0,
     timestamp: Date.now(),
     source: 'local', pm10: 0, no2: 0, so2: 0, co: 0, o3: 0, windSpeed: 0, uvIndex: 0, latitude: 0, longitude: 0
   }
@@ -153,7 +138,7 @@ export default function Dashboard() {
   const localRisk = calculateHealthRisk(readingsPayload, user);
 
   // SYSTEM STATUS CHECK
-  if (loading && !readings) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-white flex-col gap-4">
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -219,10 +204,10 @@ export default function Dashboard() {
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
           <div className="lg:col-span-8">
             <MetricsPanel
-              aqi={readings?.aqi || 0}
-              pm25={readings?.pm25 || 0}
-              temperature={readings?.temperature || 0}
-              humidity={readings?.humidity || 0}
+              aqi={aqi || 0}
+              pm25={pm25 || 0}
+              temperature={temperature || 0}
+              humidity={humidity || 0}
             />
           </div>
           <div className="lg:col-span-4">
@@ -293,7 +278,7 @@ export default function Dashboard() {
               activeSelection={activeSelection}
               center={mapCenter}
               routePoints={routePoints}
-              aqi={readings?.aqi || 0}
+              aqi={aqi || 0}
               routes={routes}
               selectedRouteId={selectedRouteId}
             />

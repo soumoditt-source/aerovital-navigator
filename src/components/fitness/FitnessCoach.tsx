@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Dumbbell, Wind, TreePine, Timer, Flame } from 'lucide-react';
 import { generateWorkoutPlan, WorkoutPlan, calculateTreesPlanted } from '@/lib/intelligence/fitnessEngine';
 import { useUserStore } from '@/stores/userStore';
+import { useAtmosphereStore } from '@/stores/atmosphereStore';
+import { useLanguageStore } from '@/stores/languageStore';
 import { AQIData } from '@/types';
 
 interface FitnessCoachProps {
@@ -13,6 +15,9 @@ interface FitnessCoachProps {
 
 export default function FitnessCoach({ aqiData }: FitnessCoachProps) {
     const { user } = useUserStore();
+    const weather = useAtmosphereStore();
+    const { getLanguagePrompt } = useLanguageStore();
+
     const [workout, setWorkout] = useState<WorkoutPlan | null>(null);
     const [completedWorkouts, setCompletedWorkouts] = useState(0);
 
@@ -24,7 +29,7 @@ export default function FitnessCoach({ aqiData }: FitnessCoachProps) {
             if (aqiData) {
                 setLoading(true);
                 try {
-                    const plan = await generateWorkoutPlan(aqiData, user, 1);
+                    const plan = await generateWorkoutPlan(aqiData, user, weather, getLanguagePrompt(), 1);
                     if (isMounted) setWorkout(plan);
                 } catch (e) {
                     console.error("Failed to generate plan", e);
@@ -35,7 +40,7 @@ export default function FitnessCoach({ aqiData }: FitnessCoachProps) {
         };
         fetchPlan();
         return () => { isMounted = false; };
-    }, [aqiData, user]);
+    }, [aqiData, user, weather, getLanguagePrompt]);
 
     if (!workout && !loading) return null;
 

@@ -6,6 +6,7 @@ import { Send, X, Bot, User, MessageSquare, Sparkles, ChevronDown } from 'lucide
 import GlassCard from '@/components/ui/GlassCard'
 import { useUserStore } from '@/stores/userStore'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
+import { useLanguageStore, LANGUAGE_OPTIONS } from '@/stores/languageStore'
 import toast from 'react-hot-toast'
 
 type AIModel = 'pathway' | 'gemini' | 'groq' | 'local';
@@ -33,15 +34,20 @@ export default function ChatAssistant() {
     const [isTyping, setIsTyping] = useState(false)
     const [selectedModel, setSelectedModel] = useState<AIModel>('pathway')
     const [showModelSelector, setShowModelSelector] = useState(false)
+    const [showLangSelector, setShowLangSelector] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null)
+    const messagesEndRef = useRef<HTMLDivElement>(null)
     const { user } = useUserStore()
     const { aqi, temperature, pm25, humidity } = useAtmosphereStore()
+    const { language, setLanguage, getLanguagePrompt } = useLanguageStore()
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: 'smooth' })
-        }
-    }, [messages, isTyping])
+        scrollToBottom()
+    }, [messages, isTyping, isOpen])
 
     const handleSend = async () => {
         if (!input.trim()) return
@@ -69,7 +75,8 @@ export default function ChatAssistant() {
                     medicalConditions.metabolic ? 'Metabolic' : '',
                     ...(medicalConditions.specificConditions || [])
                 ].filter(Boolean) : [],
-                query: userMsg
+                query: userMsg,
+                langPrompt: getLanguagePrompt()
             };
 
             switch (selectedModel) {
@@ -147,26 +154,40 @@ export default function ChatAssistant() {
                                     </button>
                                 </div>
 
-                                {/* Model Selector */}
-                                <div className="relative">
+                                {/* Selectors */}
+                                <div className="relative flex gap-2">
+                                    {/* Model Selector Trigger */}
                                     <button
                                         onClick={() => setShowModelSelector(!showModelSelector)}
-                                        className="w-full bg-white/10 hover:bg-white/20 rounded-lg px-3 py-2 flex items-center justify-between transition-colors"
+                                        className="bg-white/10 hover:bg-white/20 rounded-lg px-2 py-1.5 flex items-center justify-between transition-colors flex-1"
                                     >
-                                        <span className="text-xs flex items-center gap-2">
+                                        <span className="text-xs flex items-center gap-1.5">
                                             <span>{AI_MODELS[selectedModel].icon}</span>
-                                            <span className="font-semibold">{AI_MODELS[selectedModel].name}</span>
+                                            <span className="font-semibold truncate">{AI_MODELS[selectedModel].name}</span>
                                         </span>
-                                        <ChevronDown size={14} className={`transition-transform ${showModelSelector ? 'rotate-180' : ''}`} />
+                                        <ChevronDown size={14} className={`transition-transform shrink-0 ${showModelSelector ? 'rotate-180' : ''}`} />
                                     </button>
 
+                                    {/* Language Selector Trigger */}
+                                    <button
+                                        onClick={() => setShowLangSelector(!showLangSelector)}
+                                        className="bg-white/10 hover:bg-white/20 rounded-lg px-2 py-1.5 flex items-center justify-between transition-colors w-24"
+                                    >
+                                        <span className="text-xs font-semibold truncate">
+                                            {LANGUAGE_OPTIONS.find(l => l.code === language)?.label}
+                                        </span>
+                                        <ChevronDown size={14} className={`transition-transform shrink-0 ${showLangSelector ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {/* Dropdowns */}
                                     <AnimatePresence>
+                                        {/* Model Dropdown */}
                                         {showModelSelector && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: -10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -10 }}
-                                                className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-white/10 rounded-lg overflow-hidden z-10"
+                                                className="absolute top-full left-0 mt-1 w-[160px] bg-slate-900 border border-white/10 rounded-lg overflow-hidden z-20 shadow-xl"
                                             >
                                                 {(Object.keys(AI_MODELS) as AIModel[]).map((model) => (
                                                     <button
@@ -185,6 +206,31 @@ export default function ChatAssistant() {
                                                                 <div className="text-[10px] text-white/50">{AI_MODELS[model].description}</div>
                                                             </div>
                                                         </div>
+                                                    </button>
+                                                ))}
+                                            </motion.div>
+                                        )}
+
+                                        {/* Language Dropdown */}
+                                        {showLangSelector && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                className="absolute top-full right-0 mt-1 w-32 bg-slate-900 border border-white/10 rounded-lg overflow-hidden z-20 shadow-2xl"
+                                            >
+                                                {LANGUAGE_OPTIONS.map((langOption) => (
+                                                    <button
+                                                        key={langOption.code}
+                                                        onClick={() => {
+                                                            setLanguage(langOption.code as any);
+                                                            setShowLangSelector(false);
+                                                            toast.success(`Language changed to ${langOption.native}`);
+                                                        }}
+                                                        className={`w-full px-3 py-2 text-left hover:bg-white/10 transition-colors ${language === langOption.code ? 'bg-white/5' : ''}`}
+                                                    >
+                                                        <div className="text-xs font-semibold text-white">{langOption.label}</div>
+                                                        <div className="text-[10px] text-white/50">{langOption.native}</div>
                                                     </button>
                                                 ))}
                                             </motion.div>
@@ -237,7 +283,7 @@ export default function ChatAssistant() {
                                         </div>
                                     </div>
                                 )}
-                                <div ref={scrollRef} />
+                                <div ref={messagesEndRef} />
                             </div>
 
                             {/* Input Area */}
@@ -271,7 +317,7 @@ export default function ChatAssistant() {
                         </GlassCard>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence >
         </>
     )
 }
@@ -292,6 +338,7 @@ async function callPathwayAPI(context: any): Promise<string> {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 query: context.query,
+                language: context.langPrompt,
                 user_context: `User: ${context.user}, Age: ${context.age}, AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C`
             }),
             signal: (AbortSignal as any).timeout?.(10000) || null
@@ -321,6 +368,8 @@ User: ${context.user}, Age: ${context.age}
 Health Conditions: ${context.healthConditions.join(', ') || 'None'}
 
 User Question: ${context.query}
+
+${context.langPrompt}
 
 Provide a helpful, concise response focused on health and safety.`;
 
@@ -357,7 +406,7 @@ async function callGroqAPI(context: any): Promise<string> {
                 model: 'llama3-8b-8192',
                 messages: [{
                     role: 'system',
-                    content: `You are AeroVital AI. Current AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C. User: ${context.user}, Age: ${context.age}.`
+                    content: `You are AeroVital AI. Current AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C. User: ${context.user}, Age: ${context.age}. ${context.langPrompt}`
                 }, {
                     role: 'user',
                     content: context.query

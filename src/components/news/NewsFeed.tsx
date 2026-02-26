@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExternalLink, ShieldAlert } from 'lucide-react'
+import { useUserStore } from '@/stores/userStore'
+import { useAtmosphereStore } from '@/stores/atmosphereStore'
+import { useLanguageStore } from '@/stores/languageStore'
 
 // GDELT API returns data in this shape
 interface GDELTArticle {
@@ -20,6 +23,10 @@ export default function NewsFeed() {
     const [news, setNews] = useState<GDELTArticle[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [isThinking, setIsThinking] = useState(false)
+    const { user } = useUserStore()
+    const { aqi, temperature } = useAtmosphereStore()
+    const { getLanguagePrompt } = useLanguageStore()
 
     const fetchNews = async () => {
         try {
@@ -30,11 +37,38 @@ export default function NewsFeed() {
             const data = await res.json();
 
             if (data?.articles) {
-                // Filter out articles with no title or URL, take top 5
-                const validArticles = data.articles
-                    .filter((a: any) => a.title && a.url)
-                    .slice(0, 5);
-                setNews(validArticles);
+                const rawArticles = data.articles.filter((a: any) => a.title && a.url);
+
+                // Translation & Summarization Middleware
+                const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'demo';
+                const prompt = `Analyze these global environmental news headlines:\n${JSON.stringify(rawArticles)}\n\nUser Context: ${user ? `${user.name}, Age ${user.age}` : 'Unknown'}. Current Local AQI: ${aqi}. Local Temp: ${temperature}°C.\n\nSelect the 4 most relevant articles and summarize them into brief, engaging snippets (max 2 sentences each). Provide actionable advice if relevant to their local conditions.\n\n${getLanguagePrompt()}\n\nReturn EXACTLY a JSON array of objects with keys: url (string), title (string), seendate (string - keep original format YYYYMMDDTHHMMSSZ), socialimage (string), domain (string). Do not add markdown formatting.`;
+
+                try {
+                    setLoading(true);
+                    const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }]
+                        }),
+                        signal: (AbortSignal as any).timeout?.(15000) || null
+                    });
+
+                    if (geminiRes.ok) {
+                        const geminiData = await geminiRes.json();
+                        let aiResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                        // Strip markdown JSON blocks if the model didn't listen
+                        aiResponse = aiResponse.replace(/```json\n/g, '').replace(/```\n/g, '').replace(/```/g, '');
+                        const parsedNews = JSON.parse(aiResponse);
+                        setNews(parsedNews);
+                    } else {
+                        // Fallback to raw if logic fails
+                        setNews(rawArticles.slice(0, 4));
+                    }
+                } catch (e) {
+                    // Fallback to raw if timeout
+                    setNews(rawArticles.slice(0, 4));
+                }
             }
         } catch (err) {
             console.error('Failed to fetch live news:', err);
@@ -49,6 +83,7 @@ export default function NewsFeed() {
         // Refresh every 5 minutes
         const interval = setInterval(fetchNews, 5 * 60 * 1000);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const formatTime = (seendate: string) => {

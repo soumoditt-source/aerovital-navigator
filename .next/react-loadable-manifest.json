@@ -32,7 +32,7 @@
   "components\\chat\\ChatAssistant.tsx -> @/lib/api/pathwayClient": {
     "id": 945,
     "files": [
-      "static/chunks/945.0c2c032ad1816cf9.js"
+      "static/chunks/945.e4e51dd188be6ad2.js"
     ]
   },
   "components\\map\\InteractiveMap.tsx -> ./MapInner": {
@@ -46,7 +46,7 @@
   "components\\ui\\EmergencySOS.tsx -> @/lib/api/pathwayClient": {
     "id": 945,
     "files": [
-      "static/chunks/945.0c2c032ad1816cf9.js"
+      "static/chunks/945.e4e51dd188be6ad2.js"
     ]
   }
 }

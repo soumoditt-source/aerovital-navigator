@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-interface AtmosphereState {
+export interface AtmosphereState {
     aqi: number
     pm25: number
     temperature: number

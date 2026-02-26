@@ -1,4 +1,6 @@
 import { AQIData, User } from '@/types';
+import { UserStore } from '@/stores/userStore';
+import { AtmosphereState } from '@/stores/atmosphereStore';
 
 export interface WorkoutPlan {
     type: 'INDOOR' | 'OUTDOOR' | 'REST';
@@ -26,7 +28,14 @@ export function calculateTreesPlanted(completedWorkouts: number): number {
     return Number.parseFloat((completedWorkouts * 0.1).toFixed(1));
 }
 
-export async function generateWorkoutPlan(readings: AQIData, user: User | null, dayNumber: number = 1): Promise<WorkoutPlan> {
+export async function generateWorkoutPlan(
+    readings: AQIData,
+    user: NonNullable<UserStore['user']> | null,
+    weather: Pick<AtmosphereState, 'aqi' | 'temperature' | 'pm25' | 'humidity'>,
+    languagePrompt?: string,
+    dayNumber: number = 1
+): Promise<WorkoutPlan | null> {
+    if (!user) return null;
 
     // Fallback static plan if NO API KEY is present
     if (!apiKey) {
@@ -49,15 +58,6 @@ export async function generateWorkoutPlan(readings: AQIData, user: User | null, 
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-        const userContext = user ? `
-        Age: ${user.age}
-        Fitness Level: ${user.fitnessLevel}
-        Vulnerabilities: 
-        - Cardiovascular: ${user.medicalConditions.cardiovascular}
-        - Respiratory (Asthma/COPD): ${user.medicalConditions.respiratory}
-        - Metabolic: ${user.medicalConditions.metabolic}
-        ` : "Standard adult user, no specific conditions known.";
-
         const prompt = `
         You are the AeroVital Ultimate AI Fitness Coach. 
         Analyze the exact environmental conditions to dictate whether a workout should be INDOOR, OUTDOOR, or REST (due to extreme danger).
@@ -69,7 +69,13 @@ export async function generateWorkoutPlan(readings: AQIData, user: User | null, 
         - Humidity: ${readings.humidity}%
         
         User Medical Profile:
-        ${userContext}
+        - Age: ${user.age}
+        - Fitness Level: ${user.fitnessLevel}
+        - Cardiovascular Issues: ${user.medicalConditions?.cardiovascular ? 'Yes' : 'No'}
+        - Respiratory Issues: ${user.medicalConditions?.respiratory ? 'Yes' : 'No'}
+        - Other Conditions: ${user.medicalConditions?.specificConditions?.join(', ') || 'None'}
+
+        ${languagePrompt || ''}
         
         Generate a highly personalized ${dayNumber > 1 ? `Day ${dayNumber}` : 'daily'} workout plan.
         If AQI > 100 and user has Respiratory issues, MUST be INDOOR.
