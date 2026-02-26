@@ -26,7 +26,7 @@
   "app\\dashboard\\page.tsx -> @/components/map/InteractiveMap": {
     "id": 2257,
     "files": [
-      "static/chunks/257.59a2a52fed489941.js"
+      "static/chunks/257.83d1e407775bea89.js"
     ]
   },
   "components\\chat\\ChatAssistant.tsx -> @/lib/api/pathwayClient": {
@@ -36,11 +36,11 @@
     ]
   },
   "components\\map\\InteractiveMap.tsx -> ./MapInner": {
-    "id": 6653,
+    "id": 2786,
     "files": [
       "static/css/fc1c9daac70c093b.css",
       "static/chunks/d0deef33.bd75b11a952a2d3d.js",
-      "static/chunks/653.b85e62154b7b3eaa.js"
+      "static/chunks/786.7bb1e5e71c20ab41.js"
     ]
   },
   "components\\ui\\EmergencySOS.tsx -> @/lib/api/pathwayClient": {

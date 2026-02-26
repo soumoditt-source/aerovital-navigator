@@ -2,34 +2,34 @@ name: AeroVital Ultimate Pipeline (CI/CD)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_GEMINI_API_KEY: ${{ secrets.NEXT_PUBLIC_GEMINI_API_KEY }}
+      NEXT_PUBLIC_GROQ_API_KEY: ${{ secrets.NEXT_PUBLIC_GROQ_API_KEY }}
+      NEXT_PUBLIC_PATHWAY_API_URL: ${{ secrets.NEXT_PUBLIC_PATHWAY_API_URL }}
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Node.js v20
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-    - name: 📦 Install Dependencies
-      run: npm install --legacy-peer-deps
+      - name: 📦 Install Dependencies
+        run: npm install --legacy-peer-deps
 
-    - name: 🔍 Lint Intelligence Audit
-      run: npm run lint
+      - name: 🔍 Lint Intelligence Audit
+        run: npm run lint
 
-    - name: 🏗️ Production Build Genesis
-      run: npm run build
-      env:
-        NEXT_PUBLIC_GEMINI_API_KEY: ${{ secrets.NEXT_PUBLIC_GEMINI_API_KEY }}
-        NEXT_PUBLIC_GROQ_API_KEY: ${{ secrets.NEXT_PUBLIC_GROQ_API_KEY }}
-        NEXT_PUBLIC_PATHWAY_API_URL: ${{ secrets.NEXT_PUBLIC_PATHWAY_API_URL }}
+      - name: 🏗️ Production Build Genesis
+        run: npm run build
