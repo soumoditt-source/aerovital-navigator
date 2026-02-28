@@ -23,7 +23,6 @@ export default function NewsFeed() {
     const [news, setNews] = useState<GDELTArticle[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
-    const [isThinking, setIsThinking] = useState(false)
     const { user } = useUserStore()
     const { aqi, temperature } = useAtmosphereStore()
     const { language, getLanguagePrompt } = useLanguageStore()
@@ -41,7 +40,7 @@ export default function NewsFeed() {
 
                 // Translation & Summarization Middleware
                 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'demo';
-                const prompt = `Analyze these global environmental news headlines:\n${JSON.stringify(rawArticles)}\n\nUser Context: ${user ? `${user.name}, Age ${user.age}` : 'Unknown'}. Current Local AQI: ${aqi}. Local Temp: ${temperature}°C.\n\nSelect the 4 most relevant articles and summarize them into brief, engaging snippets (max 2 sentences each). Provide actionable advice if relevant to their local conditions.\n\n${getLanguagePrompt()}\n\nReturn EXACTLY a JSON array of objects with keys: url (string), title (string), seendate (string - keep original format YYYYMMDDTHHMMSSZ), socialimage (string), domain (string). Do not add markdown formatting.`;
+                const prompt = `Analyze these global environmental news headlines:\n${JSON.stringify(rawArticles)}\n\nUser Context: ${user ? user.name + ', Age ' + user.age : 'Unknown'}. Current Local AQI: ${aqi}. Local Temp: ${temperature}°C.\n\nSelect the 4 most relevant articles and summarize them into brief, engaging snippets (max 2 sentences each). Provide actionable advice if relevant to their local conditions.\n\n${getLanguagePrompt()}\n\nReturn EXACTLY a JSON array of objects with keys: url (string), title (string), seendate (string - keep original format YYYYMMDDTHHMMSSZ), socialimage (string), domain (string). Do not add markdown formatting.`;
 
                 try {
                     setLoading(true);
@@ -58,7 +57,7 @@ export default function NewsFeed() {
                         const geminiData = await geminiRes.json();
                         let aiResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
                         // Strip markdown JSON blocks if the model didn't listen
-                        aiResponse = aiResponse.replace(/```json\n/g, '').replace(/```\n/g, '').replace(/```/g, '');
+                        aiResponse = aiResponse.replaceAll('```json\n', '').replaceAll('```\n', '').replaceAll('```', '');
                         const parsedNews = JSON.parse(aiResponse);
                         setNews(parsedNews);
                     } else {
@@ -66,6 +65,7 @@ export default function NewsFeed() {
                         setNews(rawArticles.slice(0, 4));
                     }
                 } catch (e) {
+                    console.warn('News summary fetch error:', e);
                     // Fallback to raw if timeout
                     setNews(rawArticles.slice(0, 4));
                 }
