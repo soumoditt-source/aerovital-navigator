@@ -1,4 +1,4 @@
-import { AQIData, User } from '@/types';
+import { AQIData } from '@/types';
 import { UserStore } from '@/stores/userStore';
 import { AtmosphereState } from '@/stores/atmosphereStore';
 

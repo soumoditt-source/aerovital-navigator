@@ -4,7 +4,9 @@ import { User } from '@/types'
 
 export interface UserStore {
   user: User | null
+  location: { lat: number, lon: number } | null
   setUser: (user: User) => void
+  setLocation: (location: { lat: number, lon: number } | null) => void
   clearUser: () => void
 }
 
@@ -12,9 +14,14 @@ export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
       user: null,
+      location: null,
       setUser: (user) => set({ user }),
-      clearUser: () => set({ user: null })
+      setLocation: (location) => set({ location }),
+      clearUser: () => set({ user: null, location: null })
     }),
-    { name: 'aerovital-user' }
+    {
+      name: 'aerovital-user',
+      partialize: (state) => ({ user: state.user }) // Don't persist location as it changes
+    }
   )
 )

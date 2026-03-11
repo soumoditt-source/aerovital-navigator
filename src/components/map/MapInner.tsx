@@ -242,11 +242,12 @@ export default function MapInner({
         )}
 
         <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Google Satellite (Hybrid)">
+          <LayersControl.BaseLayer checked name="Esri World Imagery (Vivid)">
             <TileLayer
-              attribution='&copy; Google'
-              url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
-              maxZoom={20}
+              attribution='&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={19}
+              className="map-layer-vivid contrast-125 saturate-150 brightness-110"
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Google Street View">

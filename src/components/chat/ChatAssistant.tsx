@@ -41,16 +41,29 @@ export default function ChatAssistant() {
     const { aqi, temperature, pm25, humidity } = useAtmosphereStore()
     const { language, setLanguage, getLanguagePrompt } = useLanguageStore()
 
-    const scrollToBottom = () => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-    }
+
 
     // Only scroll to bottom when a NEW message is added or when opened
+    // Robust Auto-Scroll Engine
     useEffect(() => {
-        scrollToBottom();
-    }, [messages.length, isOpen]);
+        if (!isOpen) return;
+
+        const scrollContainer = scrollRef.current;
+        if (!scrollContainer) return;
+
+        const observer = new ResizeObserver(() => {
+            scrollContainer.scrollTo({
+                top: scrollContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+
+        // Observe both the container and its content
+        observer.observe(scrollContainer);
+        if (messagesEndRef.current) observer.observe(messagesEndRef.current);
+
+        return () => observer.disconnect();
+    }, [messages.length, isOpen, isTyping]);
 
     const handleSend = async () => {
         if (!input.trim()) return
@@ -63,8 +76,13 @@ export default function ChatAssistant() {
         try {
             let reply = '';
 
-            // Build context for AI
+            // Build context for AI with HISTORY
             const medicalConditions = user?.medicalConditions;
+            const history = messages.slice(-6).map(m => ({
+                role: m.role === 'user' ? 'user' : 'model', // Gemini format
+                parts: [{ text: m.content }]
+            }));
+
             const context = {
                 user: user?.name || 'Unknown',
                 age: user?.age || 'N/A',
@@ -79,6 +97,7 @@ export default function ChatAssistant() {
                     ...(medicalConditions.specificConditions || [])
                 ].filter(Boolean) : [],
                 query: userMsg,
+                history,
                 langPrompt: getLanguagePrompt()
             };
 
@@ -131,9 +150,9 @@ export default function ChatAssistant() {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="fixed bottom-24 right-6 z-[100] w-[90vw] max-w-[400px] h-[600px] max-h-[70vh] flex flex-col"
+                        className="fixed bottom-24 right-6 z-[100] w-[90vw] max-w-[400px] h-[600px] max-h-[70vh] flex flex-col min-h-0"
                     >
-                        <GlassCard className="h-full flex flex-col p-0 overflow-hidden border-blue-500/20 shadow-blue-500/10">
+                        <GlassCard className="h-full flex flex-col p-0 overflow-hidden border-blue-500/20 shadow-blue-500/10 min-h-0">
                             {/* Header with Model Selector */}
                             <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-700">
                                 <div className="flex items-center justify-between mb-2">
@@ -343,21 +362,7 @@ async function callPathwayAPI(context: any): Promise<string> {
             return res.response || res.message;
         }
 
-        // Fallback to simpler broadcast if RAG fails
-        const response = await fetch(process.env.NEXT_PUBLIC_PATHWAY_API_URL || 'http://localhost:8001', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                query: context.query,
-                language: context.langPrompt,
-                user_context: `User: ${context.user}, Age: ${context.age}, AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C`
-            }),
-            signal: (AbortSignal as any).timeout?.(10000) || null
-        });
-
-        if (!response.ok) throw new Error('Pathway API error');
-        const data = await response.json();
-        return data.response || data.message || getLocalResponse(context);
+        throw new Error(res.error || 'Direct response failed');
     } catch (error) {
         console.error('Pathway API failed:', error);
         return getLocalResponse(context);
@@ -366,39 +371,56 @@ async function callPathwayAPI(context: any): Promise<string> {
 
 async function callGeminiAPI(context: any): Promise<string> {
     try {
-        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'demo';
-        const prompt = `You are AeroVital AI, an atmospheric health assistant. 
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        if (!apiKey || apiKey === 'demo') {
+            console.warn('Gemini API key is missing or set to demo. Using local fallback.');
+            return getLocalResponse(context);
+        }
+
+        const prompt = `You are AeroVital DEEP-RESEARCH AI, the highest intelligence tier for India Innovates 2026.
         
-Current Conditions:
-- AQI: ${context.aqi}
-- PM2.5: ${context.pm25} µg/m³
-- Temperature: ${context.temperature}°C
-- Humidity: ${context.humidity}%
+PHASE 1: LIVE DATA
+- Location: Delhi, India (Ward-level Telemetry)
+- Metrics: AQI ${context.aqi}, PM2.5 ${context.pm25}, Temp ${context.temperature}°C
+- User Profile: ${context.age} year old, Conditions: ${context.healthConditions.join(', ') || 'None'}
 
-User: ${context.user}, Age: ${context.age}
-Health Conditions: ${context.healthConditions.join(', ') || 'None'}
+PHASE 2: DEEP INTERNET SEARCH & REASONING
+- Query: "${context.query}"
+- Task: Analyze real-world data specifically for this user's conditions given the live metrics. 
 
-User Question: ${context.query}
+PHASE 3: AUTHORITATIVE SYNTHESIS
+- Be extremely precise, citing simulated real-time data constraints.
+- Provide actionable routing or health advice.
+- End your response by giving exactly 2 suggested follow-up questions the user can tap next (Format as: "Suggested Questions: \n1. [Q1]\n2. [Q2]").
 
-${context.langPrompt}
+RESPONSE GUIDELINES: Professional, empathetic, highly data-driven, max 150 words.`;
 
-Provide a helpful, concise response focused on health and safety.`;
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+        // Upgraded to gemini-1.5-flash for speed and much better contextual reasoning
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
+                system_instruction: {
+                    parts: [{ text: "You are the AeroVital AI Co-pilot." }]
+                },
+                contents: [
+                    { role: 'user', parts: [{ text: prompt }] }
+                ]
             }),
             signal: (AbortSignal as any).timeout?.(15000) || null
         });
 
-        if (!response.ok) throw new Error('Gemini API error');
+        if (!response.ok) {
+            const err = await response.text();
+            console.error('Gemini API error details:', err);
+            throw new Error(`Gemini API error: ${response.status}`);
+        }
+
         const data = await response.json();
         return data.candidates?.[0]?.content?.parts?.[0]?.text || getLocalResponse(context);
     } catch (error) {
         console.error('Gemini API failed:', error);
-        throw error;
+        return `⚠️ The Deep-Search engine is temporarily offline. Falling back to core systems. \n\n${getLocalResponse(context)}`;
     }
 }
 
@@ -414,16 +436,25 @@ async function callGroqAPI(context: any): Promise<string> {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama3-8b-8192',
-                messages: [{
-                    role: 'system',
-                    content: `You are AeroVital AI. Current AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C. User: ${context.user}, Age: ${context.age}. ${context.langPrompt}`
-                }, {
-                    role: 'user',
-                    content: context.query
-                }],
-                max_tokens: 300,
-                temperature: 0.7
+                model: 'llama3-70b-8192', // Upgraded for "Deep Search" reasoning
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are AeroVital Deep Intelligence. Current AQI: ${context.aqi}, PM2.5: ${context.pm25}, Temp: ${context.temperature}°C. 
+                        Context awareness enabled. User: ${context.user}, Age: ${context.age}. 
+                        Synthesize your response using real-time atmospheric data provided.`
+                    },
+                    ...context.history.map((h: any) => ({
+                        role: h.role === 'model' ? 'assistant' : 'user',
+                        content: h.parts[0].text
+                    })),
+                    {
+                        role: 'user',
+                        content: context.query
+                    }
+                ],
+                max_tokens: 500,
+                temperature: 0.5
             }),
             signal: (AbortSignal as any).timeout?.(10000) || null
         });

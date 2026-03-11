@@ -7,7 +7,7 @@
  * @author Soumoditya Das <soumoditt@gmail.com>
  */
 
-const API_URL = process.env.NEXT_PUBLIC_PATHWAY_API_URL
+const API_URL = process.env.NEXT_PUBLIC_PATHWAY_API_URL || 'http://localhost:8001'
 
 export async function startAQIStream(lat: number, lon: number) {
     if (!API_URL) return { success: false, message: 'API URL not configured' }
@@ -65,7 +65,8 @@ export async function queryPathwayIntel(query: string, context: any) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, context })
         })
-        return await response.json()
+        const data = await response.json()
+        return data
     } catch (error) {
         console.error('Error querying Pathway Intel:', error)
         return { success: false, error }

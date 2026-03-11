@@ -48,9 +48,13 @@ export default function Dashboard() {
   const { aqi, pm25, temperature, humidity } = useAtmosphereStore();
   const loading = !pathwayConnected;
 
+  const setPinnedLocation = useAtmosphereStore(state => state.setPinnedLocation);
+
   const handleRecenter = () => {
     if (geo.lat && geo.lon) {
       setMapCenter([geo.lat, geo.lon])
+      setLocation({ lat: geo.lat, lon: geo.lon })
+      setPinnedLocation(null)
     }
   }
 
@@ -61,6 +65,10 @@ export default function Dashboard() {
     } else if (activeSelection === 'end') {
       setRoutePoints(prev => ({ ...prev, end: [lat, lng] }))
       setActiveSelection(null)
+    } else {
+      setLocation({ lat, lon: lng })
+      setMapCenter([lat, lng])
+      setPinnedLocation({ lat, lon: lng })
     }
   }
 

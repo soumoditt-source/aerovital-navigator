@@ -1,9 +1,10 @@
 'use client'
 
-import { LayoutDashboard, Dumbbell, Newspaper, Settings } from 'lucide-react'
+import { LayoutDashboard, Dumbbell, Newspaper, Settings, Map, Flame, Camera } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
+import { useWardStore } from '@/stores/wardStore'
 
 export default function AppDock() {
     const router = useRouter()
@@ -11,11 +12,14 @@ export default function AppDock() {
 
     const tabs = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Command', path: '/dashboard' },
+        { id: 'ward-intel', icon: Map, label: 'Wards', path: '/ward-intel' },
+        { id: 'camera-scan', icon: Camera, label: 'Scan', path: '/camera-scan' },
         { id: 'fitness', icon: Dumbbell, label: 'Fitness', path: '/fitness' },
         { id: 'news', icon: Newspaper, label: 'Intel', path: '/news' },
     ]
 
     const { aqi } = useAtmosphereStore()
+    const fireCount = useWardStore((s) => s.fireAlerts.length)
 
     return (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2">
@@ -27,8 +31,13 @@ export default function AppDock() {
             >
                 <div className={`w-1.5 h-1.5 rounded-full ${aqi > 150 ? 'bg-red-500' : 'bg-green-500'} animate-pulse`} />
                 <span className="text-[9px] font-mono text-white/50 uppercase tracking-tighter">
-                    Live Monitor: <span className="text-white font-bold">{aqi} AQI</span>
+                    Live: <span className="text-white font-bold">{aqi} AQI</span>
                 </span>
+                {fireCount > 0 && (
+                    <span className="flex items-center gap-1 text-[9px] text-red-400 font-bold">
+                        <Flame size={9} /> {fireCount} Fire{fireCount > 1 ? 's' : ''}
+                    </span>
+                )}
             </motion.div>
 
             <div className="flex items-center gap-2 p-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-blue-900/20">

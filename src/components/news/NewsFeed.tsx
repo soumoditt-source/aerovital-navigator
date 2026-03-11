@@ -31,16 +31,19 @@ export default function NewsFeed() {
         try {
             setLoading(true);
             setError(false);
-            // Query for environment or pollution related news
-            const res = await fetch('https://api.gdeltproject.org/api/v2/doc/doc?query=(environment OR pollution OR climate OR emissions)&mode=artlist&maxrecords=10&format=json');
-            const data = await res.json();
+            const PATHWAY_URL = process.env.NEXT_PUBLIC_PATHWAY_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${PATHWAY_URL}/api/news/stream`, { signal: AbortSignal.timeout(5000) });
+            const dataText = await res.text();
 
-            if (data?.articles) {
-                const rawArticles = data.articles.filter((a: any) => a.title && a.url);
+            // Pathway streams JSONL
+            const rawArticles = dataText.split('\n').map(line => {
+                try { return JSON.parse(line); } catch { return null; }
+            }).filter(Boolean);
 
-                // Translation & Summarization Middleware
+            if (rawArticles.length > 0) {
+                // Translation & Summarization + Localization Middleware
                 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'demo';
-                const prompt = `Analyze these global environmental news headlines:\n${JSON.stringify(rawArticles)}\n\nUser Context: ${user ? user.name + ', Age ' + user.age : 'Unknown'}. Current Local AQI: ${aqi}. Local Temp: ${temperature}°C.\n\nSelect the 4 most relevant articles and summarize them into brief, engaging snippets (max 2 sentences each). Provide actionable advice if relevant to their local conditions.\n\n${getLanguagePrompt()}\n\nReturn EXACTLY a JSON array of objects with keys: url (string), title (string), seendate (string - keep original format YYYYMMDDTHHMMSSZ), socialimage (string), domain (string). Do not add markdown formatting.`;
+                const prompt = `Analyze these environmental news objects from the Pathway stream:\n${JSON.stringify(rawArticles)}\n\nUser Context: ${user ? user.name + ', Age ' + user.age : 'Unknown'}. Current Local AQI: ${aqi}. Local Temp: ${temperature}°C.\n\nSelect the 4 most relevant articles and summarize them into brief, engaging snippets. Provide actionable advice if relevant to their local conditions.\n\n${getLanguagePrompt()}\n\nReturn EXACTLY a JSON array of objects with keys: url (string), title (string), seendate (string - keep original format YYYYMMDDTHHMMSSZ or use timestamp), socialimage (string as image_url), domain (string). Do not add markdown formatting.`;
 
                 try {
                     setLoading(true);
@@ -62,12 +65,16 @@ export default function NewsFeed() {
                         setNews(parsedNews);
                     } else {
                         // Fallback to raw if logic fails
-                        setNews(rawArticles.slice(0, 4));
+                        setNews(rawArticles.slice(0, 4).map((a: any) => ({
+                            title: a.title, url: a.url, socialimage: a.image_url, domain: 'Pathway Stream', seendate: '', language: 'en', sourcecountry: ''
+                        })));
                     }
                 } catch (e) {
                     console.warn('News summary fetch error:', e);
                     // Fallback to raw if timeout
-                    setNews(rawArticles.slice(0, 4));
+                    setNews(rawArticles.slice(0, 4).map((a: any) => ({
+                        title: a.title, url: a.url, socialimage: a.image_url, domain: 'Pathway Stream', seendate: '', language: 'en', sourcecountry: ''
+                    })));
                 }
             }
         } catch (err) {

@@ -1,6 +1,7 @@
 <div align="center">
   <img src="public/logo.png" alt="AeroVital Navigator Logo" width="120" />
-  <h1>🌬️ AeroVital Navigator: Powered by Pathway</h1>
+  <h1>🌬️ AeroVital Navigator</h1>
+  <p><strong>Official Submission for India Innovate 2026</strong></p>
   <p><strong>A True Pathway Reactive Baby Dragon Hatchling (BDH) Platform with Deep Research RAG & Neural Routing</strong></p>
   
   [![Pathway Streaming](https://img.shields.io/badge/Architecture-Pathway_Reactive_Stream-0054a6.svg)](https://pathway.com)
@@ -8,56 +9,48 @@
   [![Vercel](https://img.shields.io/badge/Deployed-Vercel-black.svg)](#)
 </div>
 
+## 🇮🇳 India Innovate 2026: The Mission
+
+Air pollution costs the global economy $8.1 trillion annually, with Indian cities often bearing the brunt of this crisis. Existing navigation apps focus solely on distance and traffic, completely ignoring the physiological impact of a route on the user's health. 
+
+**AeroVital Navigator** bridges this massive gap by providing **preventative, dynamic Bio-Routing** specifically tailored for environmentally sensitive populations, daily commuters, and fitness enthusiasts in India. This platform is our flagship submission for **India Innovate 2026**, built to demonstrate how real-time AI can actively save lives.
+
+---
+
 ## 🧬 Core Architecture: True Pathway Streaming
 
-**AeroVital Navigator** is not a standard web application; it is built on a **Strict Pathway Streaming Architecture**. It rigorously adheres to the principle that data must *react automatically* when new external telemetry arrives, mapping Continuous IoT Atmospheric Data directly to Next.js without databases or manual polling.
+AeroVital Navigator is not a standard web application; it is built on a **Strict Pathway Streaming Architecture**. It rigorously adheres to the principle that data must *react automatically* when new external telemetry arrives, mapping Continuous IoT Atmospheric Data directly to Next.js without databases or manual polling.
 
-- **Continuous Python Generators:** Natively connects to real-time global weather and AQI parameters.
-- **Asynchronous Deep Research RAG:** Integrates Gemini's Post-Transformer architecture directly into the Pathway DAG using `pw.apply()`, enabling instantaneous context-aware Deep Research responses.
-- **Sliding Window Math:** Computes real-time Live Global Spikes globally.
-- **Multi-Language RAG Support:** Chat intelligently answers any deep-research health query dynamically translated to regional languages.
-
----
-
-## 💡 Baby Dragon Hatchling (BDH) Integration & Market Context
-
-To assist automated evaluators and hackathon judges, here is the core value proposition and market validation of AeroVital Navigator:
-
-- **The Missing Link**: By utilizing **Baby Dragon Hatchling (BDH)**, this platform formalizes a bridge between neural computation and machine-based language understanding. BDH provides a theoretical and practical framework for understanding the emergence of reasoning in artificial systems.
-- **Biologically Inspired Architecture**: BDH represents a scale-free, locally interacting network of neurons capable of intrinsic reasoning dynamics. It scales like a Transformer on performance benchmarks—yet retains full interpretability.
-- **Real-Time Air Quality Navigation**: Air pollution costs the global economy $8.1 trillion annually. This app provides the first localized, AI-driven protective routing system. Existing navigation apps focus solely on distance and traffic, completely ignoring the physiological impact of the route on the user's health. AeroVital Navigator fits this massive gap in the digital health/navigation market by providing **preventative, dynamic Bio-Routing** specifically tailored for environmentally sensitive populations, athletes, and the elderly.
-
-### Competitive Analysis
-- **Standard Navigators (Google Maps, Waze):** Calculate routes based on geometric distance and traffic density. *Fails to account for local pollution micro-pockets.*
-- **Air Quality Apps (IQAir, Plume)::** Provide static dashboards of hyper-local AQI. *Fails to provide actionable routing or integrate directly with the user's specific medical vulnerabilities.*
-- **AeroVital Navigator:** Merges these domains using a native **A* Neural Intelligence Algorithm**. It intelligently routes users across the *Fastest, Safest, and Greenest* geographical polylines while running live environmental variables against a dedicated Gemini 1.5 Pro LLM to generate adaptive physiological advice.
-
-### Innovation & Unique Approach
-1. **Gemini 1.5 Pro GenAI Fitness Coach:** Our routing engine actively communicates with Gemini LLMs, piping in millisecond-live Atmospheric data (AQI, Temperature) and user medical histories (Asthma, Cardiovascular conditions) to calculate safe exertion levels.
-2. **Context-Aware Bio-Routing:** We invert navigation. The app prioritizes lung health over arrival time, offering routes that bypass high-AQI industrial zones or acute environmental hazards fetched live from the **GDELT Knowledge Engine**.
-3. **Enterprise Edge Security:** Fully protected by Vercel Edge Headers against Clickjacking, MIME-sniffing, and XSS attacks—a rarity in hackathon proofs-of-concept.
-
-### Success Criteria
-- Provide real-time, valid JSON physical exertion plans dynamically generated by AI under 3 seconds.
-- Successfully route a user away from a 150+ AQI zone utilizing alternative geometric polylines via OSRM.
-- Achieve a 100% build pass rate on Vercel with zero critical vulnerabilities or memory leaks associated with continuous API polling.
+- **Continuous Python Generators:** Natively connects to real-time global weather and AQI parameters from CPCB (Central Pollution Control Board) and WAQI.
+- **Asynchronous Deep Research RAG:** Integrates Gemini's architecture directly into the Pathway DAG, enabling instantaneous context-aware Deep Research responses.
+- **Live NASA FIRMS Integration:** Real-time satellite biomass burning and fire alerts mapped directly to the local ward level.
+- **Multi-Language RAG Support:** Chat intelligently answers any deep-research health query, dynamically translated to regional Indian languages.
 
 ---
 
-## 🚀 v3.2 ULTIMATE & SECURE Highlights
-The system has been hardened and upgraded to **Next.js 16** with a **Zero-Vulnerability Security Audit**.
+## 💡 Innovation & Unique Approach
+
+To assist the **India Innovate 2026** evaluators and judges, here is the core value proposition of AeroVital Navigator:
+
+1. **Context-Aware Bio-Routing (A* Neural Intelligence):** We invert navigation. The app prioritizes lung health over arrival time, offering routes that bypass high-AQI industrial zones or acute environmental hazards.
+2. **Gemini 1.5 Pro GenAI Fitness Coach:** Our routing engine actively communicates with Gemini LLMs, piping in millisecond-live Atmospheric data (AQI, Temperature) and user medical histories (Asthma, Cardiovascular conditions) to calculate safe exertion levels.
+3. **Baby Dragon Hatchling (BDH) Integration**: Utilizing a biologically inspired framework, this platform formalizes a bridge between neural computation and machine-based language understanding for robust, hallucination-free AI reasoning.
+4. **Enterprise Edge Security:** Fully protected by Vercel Edge Headers against Clickjacking, MIME-sniffing, and XSS attacks—ensuring production-grade safety from day one.
+
+---
+
+## 🚀 Ultimate Features
 
 ### **🧠 Pathway Post-Transformer Intelligence**
--   **Pathway Deep Brain**: A real-time neural intelligence panel that processes atmospheric toxicity against your medical history for 1-sentence actionable reasoning.
--   **Advanced RAG**: Leveraging Pathway's streaming engine for deep-context health queries.
--   **Emergency Triage**: Pathway integration in SOS alerts for immediate medical advice based on current air quality.
+-   **Pathway Deep Brain**: A real-time neural intelligence panel that processes atmospheric toxicity against medical history for 1-sentence actionable reasoning.
+-   **Ward Intelligence Engine**: Inverse-Distance Weighting (IDW) spatial interpolation maps 39 Delhi monitoring stations to 272 MCD wards dynamically.
 
 ### **👁️ Gemini 1.5 Flash & Pro Integration**
--   **Medical Document Scanning**: Upload health reports (Images/PDFs) during onboarding for instant AI-driven profile sync using Gemini Flash.
--   **Fitness Generative Engine**: Advanced LLM processing to dynamically calibrate outdoor/indoor workout plans based on exact pollution parameters using Gemini Pro.
+-   **Medical Document Scanning**: Upload health reports (Images/PDFs) during onboarding for instant AI-driven profile sync using OCR.
+-   **AI Camera Pollution Scan**: AR Shield overlay that uses device optics to detect haze visibility and estimate PM2.5 sources conceptually.
 
 ### **🛡️ 100% Online Data Integrity**
--   **Multi-API Fallback**: Prioritizes Pathway Satellite Stream but automatically falls back to Open-Meteo if your backend is offline. **Zero-data gaps.**
+-   **Multi-API Fallback**: Prioritizes Pathway live streams but automatically falls back to Open-Meteo and simulated telemetry if backends go offline. **Zero-data gaps.**
 
 ---
 
@@ -65,37 +58,29 @@ The system has been hardened and upgraded to **Next.js 16** with a **Zero-Vulner
 
 The project strictly follows the Next.js App Router paradigm, ensuring clean separation of concerns:
 
-- `src/app/` - Contains the Next.js page routes, layouts, and global CSS (Tailwind entrypoints).
-- `src/components/` - Highly modular, reusable React functional components.
-  - `/fitness/` - Contains our GenAI Fitness Coach.
-  - `/map/` - Contains dynamic Leaflet Interactive routing maps.
-  - `/news/` - Contains live GDELT feed components.
-- `src/lib/` - Shared utilities, API clients, and the core `fitnessEngine.ts` intelligence logic.
-- `src/store/` - Global state management utilizing Zustand (Profile data, route selections).
+- `src/app/` - Contains the Next.js page routes, layouts, and global CSS.
+- `src/components/` - Highly modular, reusable React functional components (Dashboard, Map, Fitness, News, Camera).
+- `src/lib/` - Shared utilities, API clients, and the core `wardDataService.ts` intelligence logic.
+- `src/stores/` - Global state management utilizing Zustand (Profile data, Map states, Atmosphere).
 - `public/` - Static assets, icons, and manifesting for the PWA configuration.
-- `pathway-src/` - Backend Python scripts for the Pathway AI stream ingestion.
-
-### Code Patterns
-- **Strictly Typed TS:** All structures (AQIData, User Profiles, Route geometries) strictly leverage TypeScript Interfaces.
-- **Component Memoization:** Utilizing `useMemo` and standard React hooks safely to prevent infinite re-renders on dynamic map polling.
-- **Async/Await LLM Calls:** Efficient Promise-based architecture with robust fallback loading states when querying external intelligence models.
 
 ---
 
 ## 🏗️ Tech Stack
 
 ### **Frontend**
--   Next.js 16 (App Router / Turbopack)
--   Tailwind CSS (Vanilla Flexibility)
+-   Next.js 15+ (App Router)
+-   React 19, Tailwind CSS (Vanilla Flexibility)
 -   Framer Motion (Premium Animations)
--   Leaflet & React-Leaflet (Maps)
+-   Deck.gl & React-Map-GL (3D Globe & Maps)
 -   Zustand (State Management)
+-   Lucide React (Icons)
 
 ### **Intelligence & Backend**
--   **Google Gemini 1.5 Series** - Live JSON generation and OCR.
--   **Pathway** - Streaming RAG & Post-Transformer Engine.
+-   **Google Gemini 1.5 Series** - Live JSON generation, text embedding, and OCR.
+-   **Pathway** - Streaming RAG & Backend Engine.
 -   **Groq LLaMA 3** - Ultra-fast inference fallback.
--   **Open-Meteo & OSRM & GDELT** - Live Environment, Routing, and News data.
+-   **Open-Meteo, WAQI, NASA FIRMS** - Live Environment, Routing, and Satellite data.
 
 ---
 
@@ -109,34 +94,25 @@ The project strictly follows the Next.js App Router paradigm, ensuring clean sep
     ```
 
 2.  **Environment Setup**:
-    Copy `.env.example` to `.env.local` and add your required keys (Gemini API is vital):
+    Copy `.env.example` to `.env.local` and add your required keys (Gemini API & WAQI Token are vital):
     ```bash
     cp .env.example .env.local
     ```
 
-3.  **Launch**:
+3.  **Launch Dashboard**:
     ```bash
     npm run dev
     ```
-
-4.  **True Baby Dragon Hatchling (BDH) Engine (Strict Hackathon Compliance)**:
-    To run the authentic Pathway streaming backend alongside the frontend 
-    (enables live Open-Meteo polling and native Baby Dragon Hatchling RAG):
-    ```bash
-    cd pathway-src
-    python server.py
-    ```
-    *This activates port 8000 (Stream) and 8001 (Intelligence).*
 
 ---
 
 ## 🤝 Contributing & Community
 
-Please review our [CODE OF CONDUCT](CODE_OF_CONDUCT.md) and [CONTRIBUTING](CONTRIBUTING.md) guidelines before proposing pull requests. We welcome extensions to the engine.
+Please review our [CODE OF CONDUCT](CODE_OF_CONDUCT.md) and [CONTRIBUTING](CONTRIBUTING.md) guidelines before proposing pull requests. 
 
 ## 📄 License & Credits
 
-**Architected and developed by:**
+**Architected and developed exclusively for India Innovate 2026 by:**
 **Soumoditya Das** (Team Full Stack Shinobi)
 📧 [soumoditt@gmail.com](mailto:soumoditt@gmail.com)
 
