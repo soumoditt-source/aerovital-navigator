@@ -268,26 +268,26 @@ async function fetchStationData(coords?: { lat: number; lon: number }): Promise<
 // ─────────────────────────────────────────────────────────────────────────────
 // NASA FIRMS FIRE ALERT FETCH
 // ─────────────────────────────────────────────────────────────────────────────
-async function fetchFireAlerts(): Promise<FireAlert[]> {
-    // Delhi-NCR bounding box
-    const bbox = '76.8,28.3,77.5,28.9'
-    // NASA FIRMS GeoJSON endpoint (no auth needed for recent 24h data)
-    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/VIIRS_SNPP_NRT/${bbox}/1`
-    const DELHI_CENTER = { lat: 28.6139, lon: 77.2090 }
+async function fetchFireAlerts(userLocation?: { lat: number, lon: number }): Promise<FireAlert[]> {
+    const centerLat = userLocation?.lat ?? 28.6139;
+    const centerLon = userLocation?.lon ?? 77.2090;
+    // 2-degree bounding box around user's location (roughly 220 km)
+    const bbox = `${(centerLon - 1.5).toFixed(2)},${(centerLat - 1.0).toFixed(2)},${(centerLon + 1.5).toFixed(2)},${(centerLat + 1.0).toFixed(2)}`;
+    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/VIIRS_SNPP_NRT/${bbox}/1`;
 
     try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(10000) })
-        if (!res.ok) return []
-        const csv = await res.text()
-        const lines = csv.trim().split('\n').slice(1) // skip header
-        const alerts: FireAlert[] = []
+        const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+        if (!res.ok) return [];
+        const csv = await res.text();
+        const lines = csv.trim().split('\n').slice(1); // skip header
+        const alerts: FireAlert[] = [];
 
         lines.forEach((line, idx) => {
-            const parts = line.split(',')
-            if (parts.length < 10) return
-            const lat = parseFloat(parts[0])
-            const lon = parseFloat(parts[1])
-            if (isNaN(lat) || isNaN(lon)) return
+            const parts = line.split(',');
+            if (parts.length < 10) return;
+            const lat = parseFloat(parts[0]);
+            const lon = parseFloat(parts[1]);
+            if (isNaN(lat) || isNaN(lon)) return;
             alerts.push({
                 id: `fire-${idx}`,
                 lat,
@@ -296,15 +296,13 @@ async function fetchFireAlerts(): Promise<FireAlert[]> {
                 frp: parseFloat(parts[9]) || 0,
                 acqDate: parts[5] ?? '',
                 acqTime: parts[6] ?? '',
-                distanceFromCenterKm: haversineKm(
-                    DELHI_CENTER.lat, DELHI_CENTER.lon, lat, lon
-                ),
-            })
-        })
+                distanceFromCenterKm: haversineKm(centerLat, centerLon, lat, lon),
+            });
+        });
 
-        return alerts.slice(0, 20) // cap at 20 most recent
+        return alerts.slice(0, 20); // cap at 20 most recent
     } catch {
-        return [] // Fire data is supplementary — silent fail is OK
+        return []; // Fire data is supplementary — silent fail is OK
     }
 }
 
@@ -326,104 +324,165 @@ export async function hydrateWardData(userLocation?: { lat: number, lon: number 
     const month = now.getMonth() + 1
     const hour = now.getHours()
 
+    const targetLat = userLocation?.lat ?? 28.6139;
+    const targetLon = userLocation?.lon ?? 77.2090;
+
+    // Determine if user is within Delhi bounds (rough check)
+    const isInDelhi = (
+        targetLat >= 28.40 && targetLat <= 28.90 &&
+        targetLon >= 76.80 && targetLon <= 77.40
+    );
+
     // Parallel fetch: station data + fire alerts
-    // stationReadings will now be filtered/targeted to user location if available
     const [stationReadings, fireAlerts] = await Promise.all([
         fetchStationData(userLocation),
-        fetchFireAlerts(),
+        fetchFireAlerts(userLocation),
     ])
 
-    // 1. Map existing Delhi wards via IDW
-    const wards: WardData[] = DELHI_WARD_CENTROIDS.map((ward) => {
-        const interpolated = idwInterpolate(
-            { lat: ward.lat, lon: ward.lon },
-            stationReadings
-        )
+    let wards: WardData[];
 
-        const classification = classifyPollutionSource({
-            pm25: interpolated.pm25,
-            pm10: interpolated.pm10,
-            no2: interpolated.no2,
-            windSpeed: interpolated.windSpeed,
-            humidity: interpolated.humidity,
-            temperature: interpolated.temperature,
-            hourOfDay: hour,
-            monthOfYear: month,
+    if (isInDelhi) {
+        // Use well-known Delhi ward centroids
+        wards = DELHI_WARD_CENTROIDS.map((ward) => {
+            const interpolated = idwInterpolate(
+                { lat: ward.lat, lon: ward.lon },
+                stationReadings
+            )
+
+            const classification = classifyPollutionSource({
+                pm25: interpolated.pm25,
+                pm10: interpolated.pm10,
+                no2: interpolated.no2,
+                windSpeed: interpolated.windSpeed,
+                humidity: interpolated.humidity,
+                temperature: interpolated.temperature,
+                hourOfDay: hour,
+                monthOfYear: month,
+            })
+
+            const hasActiveFireAlert = fireAlerts.some(
+                (f) => calculateDistance(ward.lat, ward.lon, f.lat, f.lon) < 10
+            )
+            const stagnation = interpolated.humidity / (interpolated.windSpeed + 0.1)
+            const source = hasActiveFireAlert && stagnation > 50 ? 'biomass_burning' : classification.source
+
+            if (!aqiHistory[ward.wardId]) aqiHistory[ward.wardId] = []
+            aqiHistory[ward.wardId].push(interpolated.aqi)
+            if (aqiHistory[ward.wardId].length > MAX_HISTORY) aqiHistory[ward.wardId].shift()
+
+            return {
+                wardId: ward.wardId,
+                wardName: ward.wardName,
+                aqi: interpolated.aqi,
+                pm25: interpolated.pm25,
+                pm10: interpolated.pm10,
+                no2: interpolated.no2,
+                windSpeed: interpolated.windSpeed,
+                humidity: interpolated.humidity,
+                temperature: interpolated.temperature,
+                dominantSource: source,
+                sourceConfidence: classification.confidence,
+                riskLevel: getWardRiskLevel(interpolated.aqi),
+                lat: ward.lat,
+                lon: ward.lon,
+                hasActiveFireAlert,
+                updatedAt: Date.now(),
+            }
         })
 
-        const hasActiveFireAlert = fireAlerts.some(
-            (f) => calculateDistance(ward.lat, ward.lon, f.lat, f.lon) < 10
-        )
-        const stagnation = interpolated.humidity / (interpolated.windSpeed + 0.1)
-        const source = hasActiveFireAlert && stagnation > 50 ? 'biomass_burning' : classification.source
+        // 2. DYNAMIC LOCAL WARD: If user is outside standard centroids, inject their current location
+        if (userLocation) {
+            const isNearAnyWard = wards.some(w => calculateDistance(w.lat, w.lon, userLocation.lat, userLocation.lon) < 2);
 
-        if (!aqiHistory[ward.wardId]) aqiHistory[ward.wardId] = []
-        aqiHistory[ward.wardId].push(interpolated.aqi)
-        if (aqiHistory[ward.wardId].length > MAX_HISTORY) aqiHistory[ward.wardId].shift()
+            if (!isNearAnyWard) {
+                const localInterp = idwInterpolate(userLocation, stationReadings);
+                const localClass = classifyPollutionSource({
+                    pm25: localInterp.pm25, pm10: localInterp.pm10, no2: localInterp.no2,
+                    windSpeed: localInterp.windSpeed, humidity: localInterp.humidity, temperature: localInterp.temperature,
+                    hourOfDay: hour, monthOfYear: month
+                });
 
-        return {
-            wardId: ward.wardId,
-            wardName: ward.wardName,
-            aqi: interpolated.aqi,
-            pm25: interpolated.pm25,
-            pm10: interpolated.pm10,
-            no2: interpolated.no2,
-            windSpeed: interpolated.windSpeed,
-            humidity: interpolated.humidity,
-            temperature: interpolated.temperature,
-            dominantSource: source,
-            sourceConfidence: classification.confidence,
-            riskLevel: getWardRiskLevel(interpolated.aqi),
-            lat: ward.lat,
-            lon: ward.lon,
-            hasActiveFireAlert,
-            updatedAt: Date.now(),
+                const localWard: WardData = {
+                    wardId: 'LOCAL_NODE',
+                    wardName: 'Current Location',
+                    aqi: localInterp.aqi,
+                    pm25: localInterp.pm25,
+                    pm10: localInterp.pm10,
+                    no2: localInterp.no2,
+                    windSpeed: localInterp.windSpeed,
+                    humidity: localInterp.humidity,
+                    temperature: localInterp.temperature,
+                    dominantSource: localClass.source,
+                    sourceConfidence: localClass.confidence,
+                    riskLevel: getWardRiskLevel(localInterp.aqi),
+                    lat: userLocation.lat,
+                    lon: userLocation.lon,
+                    hasActiveFireAlert: fireAlerts.some(f => calculateDistance(userLocation.lat, userLocation.lon, f.lat, f.lon) < 10),
+                    updatedAt: Date.now()
+                };
+                wards.unshift(localWard); // Put at top of list
+            }
         }
-    })
 
-    // 2. DYNAMIC LOCAL WARD: If user is outside standard centroids, inject their current location
-    if (userLocation) {
-        const isNearAnyWard = wards.some(w => calculateDistance(w.lat, w.lon, userLocation.lat, userLocation.lon) < 2);
-
-        if (!isNearAnyWard) {
-            const localInterp = idwInterpolate(userLocation, stationReadings);
-            const localClass = classifyPollutionSource({
-                pm25: localInterp.pm25, pm10: localInterp.pm10, no2: localInterp.no2,
-                windSpeed: localInterp.windSpeed, humidity: localInterp.humidity, temperature: localInterp.temperature,
-                hourOfDay: hour, monthOfYear: month
+        const equityEntries = computeEquityAudit(wards);
+        return { wards, fireAlerts, equityEntries };
+    } else {
+        // Non-Delhi: Generate 9 dynamic micro-zones around user's actual location
+        const directions = [
+            { dLat: 0, dLon: 0, name: 'Current Location' },
+            { dLat: 0.05, dLon: 0, name: 'North Zone' },
+            { dLat: -0.05, dLon: 0, name: 'South Zone' },
+            { dLat: 0, dLon: 0.05, name: 'East Zone' },
+            { dLat: 0, dLon: -0.05, name: 'West Zone' },
+            { dLat: 0.04, dLon: 0.04, name: 'Northeast Zone' },
+            { dLat: 0.04, dLon: -0.04, name: 'Northwest Zone' },
+            { dLat: -0.04, dLon: 0.04, name: 'Southeast Zone' },
+            { dLat: -0.04, dLon: -0.04, name: 'Southwest Zone' },
+        ];
+        wards = directions.map((dir, idx) => {
+            const pt = { lat: targetLat + dir.dLat, lon: targetLon + dir.dLon };
+            const interpolated = idwInterpolate(pt, stationReadings);
+            const classification = classifyPollutionSource({
+                pm25: interpolated.pm25, pm10: interpolated.pm10, no2: interpolated.no2,
+                windSpeed: interpolated.windSpeed, humidity: interpolated.humidity,
+                temperature: interpolated.temperature, hourOfDay: hour, monthOfYear: month
             });
-
-            const localWard: WardData = {
-                wardId: 'LOCAL_NODE',
-                wardName: 'Current Location',
-                aqi: localInterp.aqi,
-                pm25: localInterp.pm25,
-                pm10: localInterp.pm10,
-                no2: localInterp.no2,
-                windSpeed: localInterp.windSpeed,
-                humidity: localInterp.humidity,
-                temperature: localInterp.temperature,
-                dominantSource: localClass.source,
-                sourceConfidence: localClass.confidence,
-                riskLevel: getWardRiskLevel(localInterp.aqi),
-                lat: userLocation.lat,
-                lon: userLocation.lon,
-                hasActiveFireAlert: fireAlerts.some(f => calculateDistance(userLocation.lat, userLocation.lon, f.lat, f.lon) < 10),
-                updatedAt: Date.now()
+            const hasActiveFireAlert = fireAlerts.some(
+                f => calculateDistance(pt.lat, pt.lon, f.lat, f.lon) < 10
+            );
+            const wardId = `LOCAL_${idx}`;
+            if (!aqiHistory[wardId]) aqiHistory[wardId] = [];
+            aqiHistory[wardId].push(interpolated.aqi);
+            if (aqiHistory[wardId].length > MAX_HISTORY) aqiHistory[wardId].shift();
+            return {
+                wardId,
+                wardName: dir.name,
+                aqi: interpolated.aqi,
+                pm25: interpolated.pm25,
+                pm10: interpolated.pm10,
+                no2: interpolated.no2,
+                windSpeed: interpolated.windSpeed,
+                humidity: interpolated.humidity,
+                temperature: interpolated.temperature,
+                dominantSource: classification.source,
+                sourceConfidence: classification.confidence,
+                riskLevel: getWardRiskLevel(interpolated.aqi),
+                lat: pt.lat,
+                lon: pt.lon,
+                hasActiveFireAlert,
+                updatedAt: Date.now(),
             };
-            wards.unshift(localWard); // Put at top of list
-        }
+        });
+        const equityEntries = computeEquityAudit(wards);
+        return { wards, fireAlerts, equityEntries };
     }
-
-    const equityEntries = computeEquityAudit(wards)
-    return { wards, fireAlerts, equityEntries }
 }
 
 /**
  * Returns a 7-day AQI forecast for a specific ward using its buffered history.
  */
 export function getWardForecast(wardId: string): ForecastPoint[] {
-    const history = aqiHistory[wardId] ?? []
-    const month = new Date().getMonth() + 1
-    return forecastWardAqi(history.length > 0 ? history : [150], month)
+    const history = aqiHistory[wardId] ?? [];
+    const month = new Date().getMonth() + 1;
+    return forecastWardAqi(history.length > 0 ? history : [150], month);
 }

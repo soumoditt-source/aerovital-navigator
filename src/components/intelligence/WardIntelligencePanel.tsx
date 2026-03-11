@@ -289,6 +289,22 @@ export default function WardIntelligencePanel() {
 
     const { location, setLocation } = useUserStore()
     const [isCalibrating, setIsCalibrating] = useState(false)
+    const [cityName, setCityName] = useState<string>('India')
+
+    // Resolve city name from coordinates
+    const resolveCityName = async (lat: number, lon: number) => {
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
+                headers: { 'User-Agent': 'AeroVital-Navigator/4.0' },
+                signal: AbortSignal.timeout(5000)
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const city = data.address?.city || data.address?.town || data.address?.county || data.address?.state || 'India';
+                setCityName(city);
+            }
+        } catch { /* Silent */ }
+    };
 
     const stats = getCityStats()
     const selectedWard = getSelectedWard()
@@ -320,10 +336,30 @@ export default function WardIntelligencePanel() {
         }
     }
 
+    // Auto-calibrate to user location on first load
     useEffect(() => {
-        if (!isLoaded) refresh(location || undefined)
-        const interval = setInterval(() => refresh(location || undefined), 10 * 60 * 1000)
-        return () => clearInterval(interval)
+        if (!isLoaded && !location) {
+            // Silently try to get location on first load
+            if (typeof navigator !== 'undefined' && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const loc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+                        setLocation(loc);
+                        resolveCityName(loc.lat, loc.lon);
+                        refresh(loc);
+                    },
+                    () => { refresh(undefined); }, // Fall back to WAQI global default
+                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
+                );
+            } else {
+                refresh(undefined);
+            }
+        } else if (!isLoaded) {
+            if (location) resolveCityName(location.lat, location.lon);
+            refresh(location || undefined);
+        }
+        const interval = setInterval(() => refresh(location || undefined), 10 * 60 * 1000);
+        return () => clearInterval(interval);
     }, [isLoaded, refresh, location])
 
     // ── Forecast loading on ward select ────────────────────────────────────────
@@ -463,7 +499,7 @@ Issued by order of the Commissioner, MCD.`
                         </span>
                     </h2>
                     <p className="text-xs text-white/40 mt-0.5">
-                        Delhi MCD · {stats.totalWards} wards live · Updated {isLoaded ? 'now' : '—'}
+                        {cityName} · {stats.totalWards} area zones live · Updated {isLoaded ? 'now' : '—'}
                     </p>
                 </div>
 
@@ -501,7 +537,7 @@ Issued by order of the Commissioner, MCD.`
                             `}
                         >
                             {isCalibrating ? <Loader2 size={12} className="animate-spin" /> : <MapPin size={12} />}
-                            {location ? 'Calibrated' : 'Calibrate Area'}
+                            {location ? `📍 ${cityName}` : 'Calibrate Area'}
                         </motion.button>
 
                         <button

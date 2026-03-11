@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, X, Bot, User, MessageSquare, Sparkles, ChevronDown } from 'lucide-react'
+import { Send, X, Bot, User, MessageSquare, Sparkles, ChevronDown, MapPin } from 'lucide-react'
 import GlassCard from '@/components/ui/GlassCard'
 import { useUserStore } from '@/stores/userStore'
 import { useAtmosphereStore } from '@/stores/atmosphereStore'
@@ -37,7 +37,7 @@ export default function ChatAssistant() {
     const [showLangSelector, setShowLangSelector] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null)
     const messagesEndRef = useRef<HTMLDivElement>(null)
-    const { user } = useUserStore()
+    const { user, location: userLocation } = useUserStore()
     const { aqi, temperature, pm25, humidity } = useAtmosphereStore()
     const { language, setLanguage, getLanguagePrompt } = useLanguageStore()
 
@@ -84,12 +84,14 @@ export default function ChatAssistant() {
             }));
 
             const context = {
-                user: user?.name || 'Unknown',
+                user: user?.name || 'User',
                 age: user?.age || 'N/A',
                 aqi,
                 pm25,
                 temperature,
                 humidity,
+                lat: userLocation?.lat ?? null,
+                lon: userLocation?.lon ?? null,
                 healthConditions: medicalConditions ? [
                     medicalConditions.cardiovascular ? 'Cardiovascular' : '',
                     medicalConditions.respiratory ? 'Respiratory' : '',
@@ -103,7 +105,8 @@ export default function ChatAssistant() {
 
             switch (selectedModel) {
                 case 'pathway':
-                    reply = await callPathwayAPI(context);
+                    // Try Gemini first (always available), Pathway is optional local backend
+                    reply = await callGeminiAPI(context);
                     break;
                 case 'gemini':
                     reply = await callGeminiAPI(context);
@@ -377,26 +380,28 @@ async function callGeminiAPI(context: any): Promise<string> {
             return getLocalResponse(context);
         }
 
-        const prompt = `You are AeroVital DEEP-RESEARCH AI, the highest intelligence tier for India Innovates 2026.
-        
-PHASE 1: LIVE DATA
-- Location: Delhi, India (Ward-level Telemetry)
-- Metrics: AQI ${context.aqi}, PM2.5 ${context.pm25}, Temp ${context.temperature}°C
-- User Profile: ${context.age} year old, Conditions: ${context.healthConditions.join(', ') || 'None'}
+        const locationStr = (context.lat && context.lon)
+            ? `GPS: ${context.lat.toFixed(3)}°N, ${context.lon.toFixed(3)}°E`
+            : 'Location: India (GPS pending)';
 
-PHASE 2: DEEP INTERNET SEARCH & REASONING
-- Query: "${context.query}"
-- Task: Analyze real-world data specifically for this user's conditions given the live metrics. 
+        const prompt = `You are AeroVital Intelligence — a real-time environmental health AI for India Innovates 2026.
 
-PHASE 3: AUTHORITATIVE SYNTHESIS
-- Be extremely precise, citing simulated real-time data constraints.
-- Provide actionable routing or health advice.
-- End your response by giving exactly 2 suggested follow-up questions the user can tap next (Format as: "Suggested Questions: \n1. [Q1]\n2. [Q2]").
+LIVE ATMOSPHERIC DATA:
+- ${locationStr}
+- AQI: ${context.aqi} | PM2.5: ${context.pm25} µg/m³ | Temp: ${context.temperature}°C | Humidity: ${context.humidity}%
+- User: ${context.user}, ${context.age} yrs | Conditions: ${context.healthConditions.join(', ') || 'None'}
 
-RESPONSE GUIDELINES: Professional, empathetic, highly data-driven, max 150 words.`;
+QUERY: "${context.query}"
 
-        // Upgraded to gemini-1.5-flash for speed and much better contextual reasoning
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+INSTRUCTIONS:
+- Use the LIVE data above—do not make up numbers or refer to 'Delhi' unless that's actually where the user is
+- Give precise, actionable health/routing advice relevant to the current AQI level
+- Max 130 words, professional tone
+- ${context.langPrompt || 'Respond in English'}
+- End with one specific follow-up suggestion`;
+
+        // Use gemini-2.0-flash-lite for ultra-fast inference
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

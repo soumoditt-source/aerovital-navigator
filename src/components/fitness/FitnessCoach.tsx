@@ -42,7 +42,45 @@ export default function FitnessCoach({ aqiData }: FitnessCoachProps) {
         return () => { isMounted = false; };
     }, [aqiData, user, weather, getLanguagePrompt]);
 
-    if (!workout && !loading) return null;
+    // Fallback: build a basic plan from live atmosphere data instead of showing blank
+    if (!workout && !loading) {
+        const { aqi, pm25, temperature, humidity } = useAtmosphereStore.getState();
+        const isHighPollution = aqi > 150;
+        const safeToExercise = aqi < 100;
+        return (
+            <div className="space-y-6">
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10"><Dumbbell size={100} /></div>
+                    <h2 className="text-2xl font-bold mb-1">Clean Air Fitness Coach</h2>
+                    <p className="text-white/50 text-sm">AI plan uses Gemini API key — showing real-time advisory</p>
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                        {[
+                            { label: 'AQI', val: aqi || '—', color: aqi > 150 ? 'text-red-400' : 'text-emerald-400' },
+                            { label: 'PM2.5', val: pm25 ? `${pm25} µg/m³` : '—', color: 'text-blue-400' },
+                            { label: 'Temp', val: temperature ? `${temperature}°C` : '—', color: 'text-yellow-400' },
+                            { label: 'Humidity', val: humidity ? `${humidity}%` : '—', color: 'text-cyan-400' },
+                        ].map(s => (
+                            <div key={s.label} className="bg-white/5 rounded-xl p-3 text-center">
+                                <div className="text-xs text-white/40 uppercase mb-1">{s.label}</div>
+                                <div className={`text-xl font-black ${s.color}`}>{s.val}</div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className={`mt-4 p-4 rounded-xl border ${isHighPollution ? 'bg-red-500/10 border-red-500/30 text-red-200' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'}`}>
+                        <p className="font-bold text-sm mb-2">{isHighPollution ? '⚠️ HIGH POLLUTION — INDOOR ONLY' : safeToExercise ? '✅ SAFE TO EXERCISE OUTDOORS' : '🟡 MODERATE — LIMIT OUTDOOR EXERTION'}</p>
+                        <ul className="text-xs space-y-1 text-white/70">
+                            {isHighPollution ? (
+                                <><li>• Stay indoors and do bodyweight exercises</li><li>• 3×20 Jumping Jacks, 3×15 Push-ups, 3×45s Plank</li><li>• Hydrate every 15 minutes</li><li>• Wear N95 if you must go outside</li></>
+                            ) : (
+                                <><li>• 30 min brisk walk or jogging safe</li><li>• Warm-up: 5 min stretching before exercise</li><li>• Best time: early morning (6-8 AM) or evening (6-8 PM)</li><li>• Carry water and a light mask as precaution</li></>
+                            )}
+                        </ul>
+                    </div>
+                    <p className="text-[10px] text-white/30 mt-3 font-mono">Add NEXT_PUBLIC_GEMINI_API_KEY to .env.local for full AI-personalized plans</p>
+                </div>
+            </div>
+        );
+    }
 
     if (loading) {
         return (
