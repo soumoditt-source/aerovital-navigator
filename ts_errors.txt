@@ -1,7 +1,0 @@
-src/components/map/Globe3DMap.tsx(41,26): error TS2339: Property 'longitude' does not exist on type 'WardData'.
-src/components/map/Globe3DMap.tsx(41,39): error TS2339: Property 'latitude' does not exist on type 'WardData'.
-src/components/map/Globe3DMap.tsx(72,9): error TS2322: Type '(info: any) => void' is not assignable to type '((info: { color: Uint8Array<ArrayBufferLike> | null; layer: Layer<{}> | null; sourceLayer?: Layer<{}> | null | undefined; viewport?: Viewport | undefined; ... 8 more ...; pixelRatio: number; }, pickingEvent: any) => boolean) & ((info: any) => void) & ((pickingInfo: { ...; }, event: MjolnirEvent) => boolean | void)'.
-  Type '(info: any) => void' is not assignable to type '(info: { color: Uint8Array<ArrayBufferLike> | null; layer: Layer<{}> | null; sourceLayer?: Layer<{}> | null | undefined; viewport?: Viewport | undefined; ... 8 more ...; pixelRatio: number; }, pickingEvent: any) => boolean'.
-    Type 'void' is not assignable to type 'boolean'.
-src/components/map/Globe3DMap.tsx(108,68): error TS2345: Argument of type 'TransitionProps | MapViewState' is not assignable to parameter of type 'SetStateAction<{ longitude: number; latitude: number; zoom: number; pitch: number; bearing: number; }>'.
-  Type 'TransitionProps' is not assignable to type 'SetStateAction<{ longitude: number; latitude: number; zoom: number; pitch: number; bearing: number; }>'.
